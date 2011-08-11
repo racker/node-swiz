@@ -1265,6 +1265,35 @@ exports['test_partial'] = function(test, assert) {
   test.finish();
 };
 
+exports['test_partial_update_required'] = function(test, assert) {
+  var v = new V({
+    a: C().isString(),
+    b: C().updateRequired().isInt()
+  });
+
+  var neg = { a: 'foo' };
+  v.checkPartial(neg, function(err, cleaned) {
+    assert.deepEqual(err.message, 'Missing required key', 'partial update required');
+  });
+
+  test.finish();
+};
+
+exports['test_partial_immutable'] = function(test, assert) {
+  var v = new V({
+    a: C().isString(),
+    b: C().immutable().isInt()
+  });
+
+  var neg = { a: 'foo', b: 1234 };
+  v.checkPartial(neg, function(err, cleaned) {
+    assert.deepEqual(err.message, 'Attempted to mutate immutable key', 'partial immutable');
+  });
+
+  test.finish();
+};
+
+
 exports['test_custom'] = function(test, assert) {
   var description = 'Is the meaning of life';
   V.addChainValidator('isMeaningOfLife',
@@ -1338,7 +1367,6 @@ exports['test_custom_array_with_baton'] = function(test, assert) {
   var neg = { a: [43] };
   v.baton = 'aBaton';
   v.check(neg, function(err, cleaned) {
-    console.log(err);
     assert.deepEqual(err.message, 'incorrect value', 'custom test (negative case)');
   });
 
