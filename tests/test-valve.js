@@ -29,7 +29,7 @@ var def = [
         F('id', {'src': 'hash_id', 'desc': 'hash ID for the node', 'attribute': true,
                  'val' : C().isString()}),
         F('is_active', {'src': 'active', 'desc': 'is the node active?',
-                        'val' : C().toBoolean()}),
+                        'val' : C().toBoolean(), 'coerceTo' : 'boolean'}),
         F('name', {'src' : 'get_name', 'desc' : 'name', 'attribute': true,
                    'val' : C().isString()}),
         F('agent_name', {'val' : C().isString().notEmpty()}),
@@ -1586,7 +1586,7 @@ exports['test_schema_translation_2'] = function(test, assert) {
   });
 };
 
-exports['test_roundtrip_swiz_valve'] = function(test, assert) {
+exports['test_roundtrip_json_swiz_valve'] = function(test, assert) {
   var validity = swiz.defToValve(def),
       v = new V(validity.Node),
       obj, sw = new swiz.Swiz(def);
@@ -1598,8 +1598,34 @@ exports['test_roundtrip_swiz_valve'] = function(test, assert) {
     sw.serialize(swiz.SERIALIZATION.SERIALIZATION_JSON, 1, obj,
       function(err, results) {
         assert.ifError(err);
-        assert.deepEqual(JSON.parse(results),exampleNode,'Round trip swiz/valve test');
-        test.finish();
+        sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_JSON, 1, results, function(err, newObj) {
+          assert.deepEqual(newObj, exampleNode, 'Round trip json swiz/valve test');
+          assert.ifError(err);
+          test.finish();
+        });
+    });
+  });
+};
+
+
+
+exports['test_roundtrip_xml_swiz_valve'] = function(test, assert) {
+  var validity = swiz.defToValve(def),
+      v = new V(validity.Node),
+      obj, sw = new swiz.Swiz(def);
+
+  v.check(exampleNode, function(err, cleaned) {
+    assert.ifError(err);
+    obj = cleaned;
+    obj.getSerializerType = function() {return 'Node';};
+    sw.serialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, obj,
+      function(err, xml) {
+        assert.ifError(err);
+        sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, xml, function(err, newObj) {
+          assert.deepEqual(newObj, exampleNode, 'Round trip json swiz/valve test');
+          assert.ifError(err);
+          test.finish();
+        });
     });
   });
 };

@@ -15,6 +15,7 @@
  *
  */
 
+var async = require('async');
 var util = require('util');
 var assert = require('assert');
 
@@ -37,7 +38,7 @@ var def = [
     {
       'fields': [
         F('id', {'src': 'hash_id', 'desc': 'hash ID for the node', 'attribute': true}),
-        F('is_active', {'src': 'active', 'desc': 'is the node active?'}),
+        F('is_active', {'src': 'active', 'desc': 'is the node active?', 'coerceTo': 'boolean'}),
         F('name', {'src' : 'get_name', 'desc' : 'name', 'attribute': true}),
         F('agent_name'),
         F('ipaddress' , {'src' : 'get_public_address'}),
@@ -446,3 +447,76 @@ exports['test_serial_invalid_serializer_type_xml'] = function(test, assert) {
       }
   );
 };
+
+exports['test_simple_xml_deserialization'] = function(test, assert) {
+  var node1 = new Node();
+  var sw = new swiz.Swiz(def);
+  
+  var node1Built;
+  var node1Xml;
+  async.waterfall([
+    function(callback) {
+      sw.buildObject(node1, function(err, obj) {
+        node1Built = obj;
+        callback(err);
+      });
+    },
+    function(callback) {
+      sw.serialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, node1, function(err, xml) {
+        node1Xml = xml;
+        callback(err);
+      });
+    },
+    function(callback) {
+      sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, node1Xml, function(err, jsObj) {
+        assert.deepEqual(jsObj, node1Built);
+        callback(err);
+      });
+    }
+  ], function(err) {
+    assert.ifError(err);
+    test.finish();
+  });
+}
+
+exports['test_array_xml_deserialization'] = function(test, assert) {
+  var node1 = new Node();
+  var node2 = new Node();
+  node2.hash_id = '444';
+  node2.agent_name = 'your mom';
+  var arr = [node1, node2];
+  
+  var node1Obj;
+  var node2Obj;
+  
+  var sw = new swiz.Swiz(def);
+  async.waterfall([
+    function(callback) {
+      sw.buildObject(node1, function(err, obj) {
+        node1Obj = obj;
+        callback(err);
+      });
+    },
+    function(callback) {
+      sw.buildObject(node2, function(err, obj) {
+        node2Obj = obj;
+        callback(err);
+      });
+    },
+    function(callback) {
+      sw.serialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, arr, function(err, xml) {
+        callback(err, xml);
+      });
+    },
+    function(xml, callback) {
+      sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, xml, function(err, arr) {
+        // should be an array in this case.
+        assert.deepEqual([node1Obj, node2Obj], arr);
+        callback();
+      });
+    }
+  ], function(err) {
+    assert.ifError(err);
+    test.finish();
+  });
+}
