@@ -22,6 +22,7 @@ var assert = require('assert');
 var swiz = require('swiz');
 var O = swiz.struct.Obj;
 var F = swiz.struct.Field;
+var Chain = swiz.Chain;
 var trim = require('./../lib/util').trim;
 
 
@@ -61,6 +62,32 @@ var def = [
 
       'singular': 'nodeOpts'
     }),
+  
+  O('notification_types', 
+    {
+      'fields': [
+        F('key', {'src' : 'key', 'ignorePublic': true, 'attribute': true}),
+        F('serializerType', { src: 'serializerType', 'val': new Chain().isString().notEmpty() }),
+        F('fields', {'src': 'fields', 
+                     'val': new Chain().isArray(new Chain().isHash(new Chain().isString(), new Chain().notEmpty())),
+                     'singular': 'field', 'plural': 'fields'})
+      ],
+      'singular': 'notification_type',
+      'plural': 'notification_types'
+    }),
+        
+  O('contrived', 
+    {
+      'fields': [
+        F('key', {'src' : 'key', 'ignorePublic': true, 'attribute': true}),
+        F('serializerType', { src: 'serializerType', 'val': new Chain().isString().notEmpty() }),
+        F('fields', {'src': 'fields', 
+                     'val': new Chain().isHash(new Chain().isString(), new Chain().isHash(new Chain().isString(), new Chain().notEmpty())),
+                     'singular': 'fields', 'plural': 'fields'})
+      ],
+      'singular': 'contrive',
+      'plural': 'contrived'
+    })
 ];
 
 /** Completely mock node object.
@@ -143,6 +170,89 @@ exports['test_build_object'] = function(test, assert) {
     test.finish();
   });
 };
+
+var NotificationTypes = [{
+		"key":"web_hook",
+		"serializerType":"notification_types",
+		"fields":[{
+      "name":"host",
+      "description":"Fully qualified hostname to connect to",
+      "optional":false
+    },{
+      "name":"port",
+      "description":"TCP port to connect to",
+      "optional":false
+    },{
+      "name":"path",
+      "description":
+      "The absolute path to POST to",
+      "optional":false
+    },{
+      "name":"ssl",
+      "description":"Use SSL/TLS",
+      "optional":true
+    }]
+	},{
+		"key":"email",
+		"serializerType":"notification_types",
+		"fields":[{
+      "name":"address",
+      "description":"Email address to send notifications to",
+      "optional":false
+    }]
+	}
+];
+
+var Contrived = [
+  {
+   'key': 'key0',
+    'serializerType': 'contrived',
+    'fields':{
+      'name': {'friz': 'baz'},
+      'description': 'this is a desc',
+      'optional': false
+    }
+  }, {
+   'key': 'key1',
+    'serializerType': 'contrived',
+    'fields':{
+      'name':'foozy',
+      'description': 'this is a foozy desc',
+      'optional': true
+    }
+  }, {
+   'key': 'key2',
+    'serializerType': 'contrived',
+    'fields':{
+      'name':'twozy',
+      'description': 'this is a twozy desc',
+      'optional': false
+    }
+  }];
+
+exports['test_contrived_xml'] = function(test, assert) {
+  var sw = new swiz.Swiz(def, {stripNulls: true});
+  sw.serialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, Contrived, function(err, xml) {
+    assert.ifError(err);
+    sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, xml, function(err, obj) {
+      assert.ifError(err);
+      assert.deepEqual(obj, Contrived);
+    });
+    test.finish();
+  });
+}
+
+exports['test_notification_types_xml'] = function(test, assert) {
+  var sw = new swiz.Swiz(def, {stripNulls: true});
+  sw.serialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, NotificationTypes, function(err, xml) {
+    assert.ifError(err);
+    sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, xml, function(err, obj) {
+      assert.ifError(err);
+      assert.deepEqual(obj, NotificationTypes);
+    });
+    test.finish();
+  });
+}
 
 
 exports['test_serial_xml'] = function(test, assert) {
@@ -477,7 +587,7 @@ exports['test_simple_xml_deserialization'] = function(test, assert) {
     assert.ifError(err);
     test.finish();
   });
-}
+};
 
 exports['test_array_xml_deserialization'] = function(test, assert) {
   var node1 = new Node();
@@ -519,4 +629,4 @@ exports['test_array_xml_deserialization'] = function(test, assert) {
     assert.ifError(err);
     test.finish();
   });
-}
+};
