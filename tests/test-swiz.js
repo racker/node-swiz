@@ -87,6 +87,20 @@ var def = [
       ],
       'singular': 'contrive',
       'plural': 'contrived'
+    }),
+        
+  O('accounting',
+    {
+      'fields': [
+        F('serializerType', { 'val': new Chain().isString().notEmpty() }),
+        F('monitoring_zones', { 'val': new Chain().isInt() }),  
+        F('notification_plans', { 'val': new Chain().isInt() }),  
+        F('notification_types', { 'val': new Chain().isInt() }),  
+        F('entities', { 'val': new Chain().isInt() })
+        // you get the ideal.
+      ],
+      'singular': 'accounting',
+      'plural': 'accountings'
     })
 ];
 
@@ -229,6 +243,15 @@ var Contrived = [
       'optional': false
     }
   }];
+
+exports['test_deserialize_text_only_entities'] = function(test, assert) {
+  var xml = '<accounting><entities>2</entities><serializerType>accounting</serializerType></accounting>';
+  var sw = new swiz.Swiz(def, {stripNulls: true});
+  var obj = sw.deserializeXml(xml);
+  assert.strictEqual(obj.entities, 2);
+  assert.strictEqual(sw.deserializeXml(sw.serializeXml(obj)).entities, 2);
+  test.finish();
+};
 
 exports['test_contrived_xml'] = function(test, assert) {
   var sw = new swiz.Swiz(def, {stripNulls: true});
