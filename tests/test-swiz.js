@@ -20,6 +20,7 @@ var util = require('util');
 var assert = require('assert');
 
 var swiz = require('swiz');
+var serializer = require('serializer');
 var O = swiz.struct.Obj;
 var F = swiz.struct.Field;
 var Chain = swiz.Chain;
@@ -31,7 +32,6 @@ assert.trimEqual = function(actual, expected, message) {
   expected = trim(expected);
   assert.equal(actual, expected, message);
 };
-
 
 // Mock set of serialization defs
 var def = [
@@ -67,7 +67,6 @@ var def = [
     {
       'fields': [
         F('key', {'src' : 'key', 'ignorePublic': true, 'attribute': true}),
-        F('serializerType', { src: 'serializerType', 'val': new Chain().isString().notEmpty() }),
         F('fields', {'src': 'fields',
                      'val': new Chain().isArray(new Chain().isHash(new Chain().isString(), new Chain().notEmpty())),
                      'singular': 'field', 'plural': 'fields'})
@@ -75,24 +74,10 @@ var def = [
       'singular': 'notification_type',
       'plural': 'notification_types'
     }),
-
-  O('contrived',
-    {
-      'fields': [
-        F('key', {'src' : 'key', 'ignorePublic': true, 'attribute': true}),
-        F('serializerType', { src: 'serializerType', 'val': new Chain().isString().notEmpty() }),
-        F('fields', {'src': 'fields',
-                     'val': new Chain().isHash(new Chain().isString(), new Chain().isHash(new Chain().isString(), new Chain().notEmpty())),
-                     'singular': 'fields', 'plural': 'fields'})
-      ],
-      'singular': 'contrive',
-      'plural': 'contrived'
-    }),
         
   O('accounting',
     {
       'fields': [
-        F('serializerType', { 'val': new Chain().isString().notEmpty() }),
         F('monitoring_zones', { 'val': new Chain().isInt() }),  
         F('notification_plans', { 'val': new Chain().isInt() }),  
         F('notification_types', { 'val': new Chain().isInt() }),  
@@ -190,33 +175,6 @@ var NotificationTypes = [{
 	}
 ];
 
-var Contrived = [
-  {
-   'key': 'key0',
-    'serializerType': 'contrived',
-    'fields':{
-      'name': {'friz': 'baz'},
-      'description': 'this is a desc',
-      'optional': false
-    }
-  }, {
-   'key': 'key1',
-    'serializerType': 'contrived',
-    'fields':{
-      'name':'foozy',
-      'description': 'this is a foozy desc',
-      'optional': true
-    }
-  }, {
-   'key': 'key2',
-    'serializerType': 'contrived',
-    'fields':{
-      'name':'twozy',
-      'description': 'this is a twozy desc',
-      'optional': false
-    }
-  }];
-
 exports['test_stripnull'] = function(test, assert) {
   var objWithNull = {
     option1: 'not null',
@@ -306,29 +264,48 @@ exports['test_deserialize_text_only_entities'] = function(test, assert) {
   test.finish();
 };
 
-exports['test_contrived_xml'] = function(test, assert) {
-  var sw = new swiz.Swiz(def, {stripNulls: true});
-  sw.serialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, Contrived, function(err, xml) {
+exports['test_can_roundtrip_raw_object'] = function(test, assert) {
+  // this is a pure javascript object that doesn't have a getSerializerType function, but is decorated with 
+  // serializerType fields to support serialization to xml.
+  var sw = new swiz.Swiz(def, {stripNulls: false});
+  async.waterfall([
+    function serializeXML(callback) {
+      sw.serialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, NotificationTypes, function(err, xml) {
+        assert.ifError(err);
+        assert.ok(xml !== '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<group></group>');
+        assert.ok(xml.indexOf('serializerType') === -1);
+        callback(null, xml);
+      });
+    } ,
+    function deserializeXml(xml, callback) {
+      sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, xml, function(err, obj) {
+        assert.ifError(err);
+        assert.deepEqual(obj, serializer.stripSerializerTypes(NotificationTypes));
+        assert.ok(JSON.stringify(obj).indexOf('serializerType') === -1);
+        callback();
+      });
+    },
+    function serializeJSON(callback) {
+      sw.serialize(swiz.SERIALIZATION.SERIALIZATION_JSON, 1, NotificationTypes, function(err, json) {
+        assert.ifError(err);
+        assert.ok(json);
+        assert.ok(json.indexOf('serializerType') === -1);
+        callback(null, json);
+      });
+    },
+    function deserializeJSON(json, callback) {
+      sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_JSON, 1, json, function(err, obj) {
+        assert.ifError(err);
+        assert.ok(JSON.stringify(obj).indexOf('serializerType') === -1);
+        callback();
+      });
+    }
+  ], function(err) {
     assert.ifError(err);
-    sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, xml, function(err, obj) {
-      assert.ifError(err);
-      assert.deepEqual(obj, Contrived);
-    });
     test.finish();
   });
-}
+};
 
-exports['test_notification_types_xml'] = function(test, assert) {
-  var sw = new swiz.Swiz(def, {stripNulls: true});
-  sw.serialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, NotificationTypes, function(err, xml) {
-    assert.ifError(err);
-    sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_XML, 1, xml, function(err, obj) {
-      assert.ifError(err);
-      assert.deepEqual(obj, NotificationTypes);
-    });
-    test.finish();
-  });
-}
 
 
 exports['test_serial_xml'] = function(test, assert) {
