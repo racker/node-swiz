@@ -107,6 +107,63 @@ var badExampleNode1 = {
 };
 
 
+exports['test_validate_numItems'] = function(test, assert) {
+  var v1, v2;
+
+  v1 = new V({
+    a: C().isArray(C().isInt()).numItems(1, 5)
+  });
+
+  v2 = new V({
+    a: C().isHash(C().isString(), C().notEmpty()).numItems(1, 5)
+  });
+
+  // Negative test cases (array)
+  v1.check({'a': [1]}, function(err, cleaned) {
+    assert.ifError(err);
+  });
+
+  v1.check({'a': [1, 2, 3, 4, 5]}, function(err, cleaned) {
+    assert.ifError(err);
+  });
+
+  // Positive test cases (array)
+  v1.check({'a': []}, function(err, cleaned) {
+    assert.ok(err);
+    assert.match(err.message, /Object needs to have between 1 and 5 items/);
+    console.log(err);
+  });
+
+  v1.check({'a': [1, 2, 3, 4, 5, 6]}, function(err, cleaned) {
+    assert.ok(err);
+    assert.match(err.message, /Object needs to have between 1 and 5 items/);
+    console.log(err);
+  });
+
+  // Negative test cases (object)
+  v2.check({'a': {'a': 1}}, function(err, cleaned) {
+    assert.ifError(err);
+  });
+
+  v2.check({'a': {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'f': 5}}, function(err, cleaned) {
+    assert.ifError(err);
+  });
+
+  // Positive test cases (object)
+ v2.check({'a': {}}, function(err, cleaned) {
+    assert.ok(err);
+    assert.match(err.message, /Object needs to have between 1 and 5 items/);
+  });
+
+  v2.check({'a': {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'f': 5, 'g': 6}}, function(err, cleaned) {
+    assert.ok(err);
+    assert.match(err.message, /Object needs to have between 1 and 5 items/);
+  });
+
+  test.finish();
+};
+
+
 exports['test_validate_int'] = function(test, assert) {
   var v = new V({
     a: C().isInt()
