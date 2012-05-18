@@ -108,7 +108,7 @@ var badExampleNode1 = {
 
 
 exports['test_validate_numItems'] = function(test, assert) {
-  var v1, v2;
+  var v1, v2, v3;
 
   v1 = new V({
     a: C().isArray(C().isInt()).numItems(1, 5)
@@ -116,6 +116,10 @@ exports['test_validate_numItems'] = function(test, assert) {
 
   v2 = new V({
     a: C().isHash(C().isString(), C().notEmpty()).numItems(1, 5)
+  });
+
+  v3 = new V({
+    a: C().isArray(C().isInt()).numItems(2)
   });
 
   // Negative test cases (array)
@@ -127,17 +131,25 @@ exports['test_validate_numItems'] = function(test, assert) {
     assert.ifError(err);
   });
 
+  v3.check({'a': [1, 2]}, function(err, cleaned) {
+    assert.ifError(err);
+  });
+
+  // Positive case (array)
+  v3.check({'a': [1]}, function(err, cleaned) {
+    assert.ok(err);
+    assert.match(err.message, /Object needs to have between 2 and Infinity items/);
+  });
+
   // Positive test cases (array)
   v1.check({'a': []}, function(err, cleaned) {
     assert.ok(err);
     assert.match(err.message, /Object needs to have between 1 and 5 items/);
-    console.log(err);
   });
 
   v1.check({'a': [1, 2, 3, 4, 5, 6]}, function(err, cleaned) {
     assert.ok(err);
     assert.match(err.message, /Object needs to have between 1 and 5 items/);
-    console.log(err);
   });
 
   // Negative test cases (object)
@@ -282,7 +294,6 @@ exports['test_toUnique'] = function(test, assert) {
 
   v.check(obj2Neg, function(err, cleaned) {
     assert.ifError(err);
-    console.log(cleaned)
     assert.deepEqual(cleaned, {a: [2, 3, 4, 5]});
   });
 
