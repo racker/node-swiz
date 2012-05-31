@@ -2079,8 +2079,6 @@ exports['test_UUID'] = function(test, assert) {
       // negative case 0
       var neg0 = { a: 'b299c10-ab5a-11e1-9f6f-1c8b12469d15' };
       v.check(neg0, function(err, cleaned) {
-console.log('here0');
-	  console.log(err.message);
         assert.deepEqual(err.message, "Invalid UUID", 'isUUID test');
       });
       callback(null, 'two');
@@ -2090,7 +2088,6 @@ console.log('here0');
       // negative case 1
       var neg1 = { a: '4@299c10-ab5a-11e1-9f6f-1c8b12469d15' };
       v.check(neg1, function(err, cleaned) {
-console.log('here1');
         assert.deepEqual(err.message, "Invalid UUID", 'isUUID test');
       });
       callback(null, 'three');
@@ -2100,8 +2097,6 @@ console.log('here1');
       //negative case 2
       var neg2 = { a : '4b299c10-ab5a-11e1-4f6f-1c8b12469d15' };
       v.check(neg2, function(err, cleaned) {
-console.log('here2');
-	  console.log(err.message);
         assert.deepEqual(err.message, "Unsupported UUID variant", 'isUUID test');
       });
       callback(null, 'four');
@@ -2111,7 +2106,6 @@ console.log('here2');
       //negative case 3
       var neg3 = { a : '4b299c10-ab5a-21e1-9f6f-1c8b12469d15' };
       v.check(neg3, function(err, cleaned) {
-console.log('here3');
         assert.deepEqual(err.message, "UUID is not version 1", 'isUUID test');
       });
       callback(null, 'five');
