@@ -2072,7 +2072,7 @@ exports['test_UUID'] = function(test, assert) {
         assert.ifError(err);
         assert.deepEqual(cleaned, pos, 'isUUID test');
       });
-      callback(null, 'two');
+      callback(null, 'one');
     },
 
     function(callback) {
