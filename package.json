@@ -22,7 +22,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "make test"
+    "test": "./scripts/tests.sh"
   },
   "engines": {
     "node": ">= 0.4.0"
