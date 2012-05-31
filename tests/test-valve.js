@@ -15,7 +15,7 @@
  *
  */
 
-var swiz = require('swiz');
+var swiz = require('../lib/swiz');
 var async = require('async');
 var V = swiz.Valve;
 var C = swiz.Chain;
@@ -2058,6 +2058,70 @@ exports['test_port'] = function(test, assert) {
   test.finish();
 };
 
+
+exports['test_UUID'] = function(test, assert) {
+  var v = new V({
+    a: new C().isUUID()
+  });
+  
+  async.series([
+    function(callback) {
+      // positive case
+      var pos = { a: '4b299c10-ab5a-11e1-9f6f-1c8b12469d15' };
+      v.check(pos, function(err, cleaned) {
+        assert.ifError(err);
+        assert.deepEqual(cleaned, pos, 'isUUID test');
+      });
+      callback(null, 'two');
+    },
+
+    function(callback) {
+      // negative case 0
+      var neg0 = { a: 'b299c10-ab5a-11e1-9f6f-1c8b12469d15' };
+      v.check(neg0, function(err, cleaned) {
+console.log('here0');
+	  console.log(err.message);
+        assert.deepEqual(err.message, "Invalid UUID", 'isUUID test');
+      });
+      callback(null, 'two');
+    },
+
+    function(callback) {
+      // negative case 1
+      var neg1 = { a: '4@299c10-ab5a-11e1-9f6f-1c8b12469d15' };
+      v.check(neg1, function(err, cleaned) {
+console.log('here1');
+        assert.deepEqual(err.message, "Invalid UUID", 'isUUID test');
+      });
+      callback(null, 'three');
+    },
+    
+    function(callback) {
+      //negative case 2
+      var neg2 = { a : '4b299c10-ab5a-11e1-4f6f-1c8b12469d15' };
+      v.check(neg2, function(err, cleaned) {
+console.log('here2');
+	  console.log(err.message);
+        assert.deepEqual(err.message, "Unsupported UUID variant", 'isUUID test');
+      });
+      callback(null, 'four');
+    },
+
+    function(callback) {
+      //negative case 3
+      var neg3 = { a : '4b299c10-ab5a-21e1-9f6f-1c8b12469d15' };
+      v.check(neg3, function(err, cleaned) {
+console.log('here3');
+        assert.deepEqual(err.message, "UUID is not version 1", 'isUUID test');
+      });
+      callback(null, 'five');
+    }
+  ]);
+
+  test.finish();
+};
+
+/*
 exports['test_UUID'] = function(test, assert) {
   var v = new V({
       a: new C().isUUID()
@@ -2090,6 +2154,7 @@ exports['test_UUID'] = function(test, assert) {
   
   test.finish();
 };
+*/
 
 exports['test_getValidatorPos_hasValidator_and_getValidatorAtPos'] = function(test, assert) {
   var v = new V({
