@@ -2111,9 +2111,11 @@ exports['test_V1UUID'] = function(test, assert) {
         callback();
       });
     }
-  ]);
-
-  test.finish();
+  ],
+ 
+  function(err) {
+    test.finish();
+  });  
 };
 
 /*
