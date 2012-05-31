@@ -7,6 +7,10 @@ JSON as transports.
 # Installation
 
 `npm install swiz`
+
+# Tutorial and intro
+
+[node-swiz – Node.js Library For Serializing, Deserializing And Validating Objects In REST APIs](http://www.rackspace.com/blog/node-swiz-node-js-library-for-serializing-deserializing-and-validating-objects-in-rest-apis/)
     
 # Running tests
 
