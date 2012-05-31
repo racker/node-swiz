@@ -15,7 +15,7 @@
  *
  */
 
-var swiz = require('swiz');
+var swiz = require('../lib/swiz');
 var async = require('async');
 var V = swiz.Valve;
 var C = swiz.Chain;
@@ -2057,6 +2057,99 @@ exports['test_port'] = function(test, assert) {
 
   test.finish();
 };
+
+
+exports['test_V1UUID'] = function(test, assert) {
+  var v = new V({
+    a: new C().isV1UUID()
+  });
+  
+  async.series([
+    function(callback) {
+      // positive case
+      var pos = { a: '4b299c10-ab5a-11e1-9f6f-1c8b12469d15' };
+      v.check(pos, function(err, cleaned) {
+        assert.ifError(err);
+        assert.deepEqual(cleaned, pos, 'isV1UUID test');
+        callback();
+      });
+      
+    },
+
+    function(callback) {
+      // negative case 0
+      var neg0 = { a: 'b299c10-ab5a-11e1-9f6f-1c8b12469d15' };
+      v.check(neg0, function(err, cleaned) {
+        assert.deepEqual(err.message, "Invalid UUID", 'isV1UUID test');
+        callback();
+      });
+    },
+
+    function(callback) {
+      // negative case 1
+      var neg1 = { a: '4@299c10-ab5a-11e1-9f6f-1c8b12469d15' };
+      v.check(neg1, function(err, cleaned) {
+        assert.deepEqual(err.message, "Invalid UUID", 'isV1UUID test');
+        callback();
+      });
+    },
+    
+    function(callback) {
+      //negative case 2
+      var neg2 = { a : '4b299c10-ab5a-11e1-4f6f-1c8b12469d15' };
+      v.check(neg2, function(err, cleaned) {
+        assert.deepEqual(err.message, "Unsupported UUID variant", 'isV1UUID test');
+        callback();
+      });
+    },
+
+    function(callback) {
+      //negative case 3
+      var neg3 = { a : '4b299c10-ab5a-21e1-9f6f-1c8b12469d15' };
+      v.check(neg3, function(err, cleaned) {
+        assert.deepEqual(err.message, "UUID is not version 1", 'isV1UUID test');
+        callback();
+      });
+    }
+  ]);
+
+  test.finish();
+};
+
+/*
+exports['test_UUID'] = function(test, assert) {
+  var v = new V({
+      a: new C().isUUID()
+  });
+  
+  //positive case
+  var pos = { a: 'abcde012-Ab34-1D56-8FabC7892345' };
+  v.check(pos, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, pos, 'isUUID test');
+  });
+
+  //negative case 1
+  var neg1 = { a : 'ab@de012-Ab34-1D56-8FabC7892345' };
+  v.check(neg1, function(err, cleaned) {
+    assert.deepEqual(err.message, "Invalid UUID", 'isUUID test');
+  });
+
+  //negative case 2
+  var neg2 = { a : 'abcde012-Ab34-1D56-4FabC7892345' };
+  v.check(neg2, function(err, cleaned) {
+    assert.deepEqual(err.message, "Unsupported UUID variant", 'isUUID test');
+  });
+  
+  //negative case 3
+  var neg3 = { a : 'abcde012-Ab34-2D56-8FabC7892345' };
+  v.check(neg3, function(err, cleaned) {
+    assert.deepEqual(err.message, "UUID is not version 1", 'isUUID test');
+  });
+  
+  test.finish();
+};
+*/
 
 exports['test_getValidatorPos_hasValidator_and_getValidatorAtPos'] = function(test, assert) {
   var v = new V({
