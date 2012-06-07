@@ -822,6 +822,22 @@ exports['test_validate_regex'] = function(test, assert) {
 };
 
 
+exports['test_validate_badregex'] = function(test, assert) {
+  var badValues = new Array('', null, undefined);
+  for (i = 0; i < badValues.length; i++) {
+    try {
+      var v = new V({
+        a: C().regex(badValues[i])
+      });
+    } catch (x) {
+      assert.deepEqual(x.message, 'No pattern provided', 'badregex test');
+    }
+  }
+  
+  test.finish();
+};
+
+
 exports['test_validate_notregex'] = function(test, assert) {
   var v = new V({
     a: C().notRegex(/e/)
