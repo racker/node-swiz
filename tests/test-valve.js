@@ -822,6 +822,19 @@ exports['test_validate_regex'] = function(test, assert) {
 };
 
 
+exports['test_validate_badregex'] = function(test, assert) {
+  try {
+    var v = new V({
+      a: C().regex('')
+    });
+  } catch (x) {
+    assert.deepEqual(x.message, 'No pattern provided', 'badregex test');
+  }
+  
+  test.finish();
+};
+
+
 exports['test_validate_notregex'] = function(test, assert) {
   var v = new V({
     a: C().notRegex(/e/)
