@@ -823,12 +823,15 @@ exports['test_validate_regex'] = function(test, assert) {
 
 
 exports['test_validate_badregex'] = function(test, assert) {
-  try {
-    var v = new V({
-      a: C().regex('')
-    });
-  } catch (x) {
-    assert.deepEqual(x.message, 'No pattern provided', 'badregex test');
+  var badValues = new Array('', null, undefined);
+  for (i = 0; i < badValues.length; i++) {
+    try {
+      var v = new V({
+        a: C().regex(badValues[i])
+      });
+    } catch (x) {
+      assert.deepEqual(x.message, 'No pattern provided', 'badregex test');
+    }
   }
   
   test.finish();
