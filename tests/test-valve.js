@@ -823,16 +823,25 @@ exports['test_validate_regex'] = function(test, assert) {
 
 
 exports['test_validate_badregex'] = function(test, assert) {
-  var badValues = new Array('', null, undefined);
+  var badValues = new Array('', null, undefined),
+    throwExceptions = 0;
+
   for (i = 0; i < badValues.length; i++) {
+    var v = new V({
+      a: C().regex(badValues[i])
+    });
+  
+    var obj = { a: 'sd@#$34f' };
+    
     try {
-      var v = new V({
-        a: C().regex(badValues[i])
-      });
+      v.check(obj, function(err, cleaned) {});
     } catch (x) {
+      throwExceptions++;
       assert.deepEqual(x.message, 'No pattern provided', 'badregex test');
     }
   }
+
+  assert.equal(throwExceptions, badValues.length, 'badregex test');
   
   test.finish();
 };
