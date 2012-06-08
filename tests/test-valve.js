@@ -416,6 +416,57 @@ exports['test_validate_hostname'] = function(test, assert) {
   });
 };
 
+exports['test_isHostnameOrIp'] = function(test, assert) {
+  var v = new V({
+    a: C().isHostnameOrIp()
+  });
+
+  async.series([
+    function pos1(callback) {
+      var obj = { 'a': '127.0.0.1' };
+      v.check(obj, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos2(callback) {
+      var obj = { 'a': '2001:0db8:0000:0000:0001:0000:0000:0001' };
+      v.check(obj, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos4(callback) {
+      var obj = { 'a': 'github.com' };
+      v.check(obj, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function neg1(callback) {
+      var neg = { a: 'hostname.' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg2(callback) {
+      var neg = { a: '12356' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    }
+  ],
+
+  function(err) {
+    test.finish();
+  });
+};
 
 exports['test_validate_ipv4'] = function(test, assert) {
   var v = new V({
