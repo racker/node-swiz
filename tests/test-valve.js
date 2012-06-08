@@ -369,6 +369,54 @@ exports['test_validate_ipv6'] = function(test, assert) {
 
   test.finish();
 };
+
+exports['test_validate_hostname'] = function(test, assert) {
+  var v = new V({
+    a: C().isHostname()
+  });
+
+  // positive case
+  var obj1 = { a: 'foo1-bar-2-ck.com' };
+  var obj2 = { a: 'rackspace.com' };
+  var neg1 = { a: 'hostname.' };
+  var neg2 = { a: 'hostname' };
+
+  async.series([
+    function pos1(callback) {
+      v.check(obj1, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos2(callback) {
+      v.check(obj2, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function neg1(callback) {
+      v.check(neg1, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg2(callback) {
+      v.check(neg2, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    }
+  ],
+
+  function(err) {
+    test.finish();
+  });
+};
+
+
 exports['test_validate_ipv4'] = function(test, assert) {
   var v = new V({
     a: C().isIPv4()
