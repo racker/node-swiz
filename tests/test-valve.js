@@ -378,8 +378,6 @@ exports['test_validate_hostname'] = function(test, assert) {
   // positive case
   var obj1 = { a: 'foo1-bar-2-ck.com' };
   var obj2 = { a: 'rackspace.com' };
-  var neg1 = { a: 'hostname.' };
-  var neg2 = { a: 'hostname' };
 
   async.series([
     function pos1(callback) {
@@ -397,14 +395,16 @@ exports['test_validate_hostname'] = function(test, assert) {
     },
 
     function neg1(callback) {
-      v.check(neg1, function(err, cleaned) {
+      var neg = { a: 'hostname.' };
+      v.check(neg, function(err, cleaned) {
         assert.ok(err);
         callback();
       });
     },
 
     function neg2(callback) {
-      v.check(neg2, function(err, cleaned) {
+      var neg = { a: 'hostname.' };
+      v.check(neg, function(err, cleaned) {
         assert.ok(err);
         callback();
       });
