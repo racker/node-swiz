@@ -175,6 +175,15 @@ var NotificationTypes = [{
 	}
 ];
 
+exports['test_deserialize_json_error'] = function(test, assert) {
+  var sw = new swiz.Swiz(def, { stripNulls: false});
+
+  sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_JSON, 1, '{', function(err, obj) {
+    assert.ok(err);
+    test.finish();
+  });
+}
+
 exports['test_stripnull'] = function(test, assert) {
   var objWithNull = {
     option1: 'not null',
