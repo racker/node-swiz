@@ -2162,19 +2162,27 @@ exports['test_optional_string'] = function(test, assert) {
     a: new C().optional().isString().len(1, 5)
   });
 
-  var pos1 = {a: 'abc'};
+  async.series([
+    function check1(callback) {
+      var pos1 = {a: 'abc'};
+      v.check(pos1, function(err, cleaned) {
+        assert.ifError(err);
+        assert.deepEqual(cleaned, pos1);
+        callback();
+      });
+    },
 
-  v.check(pos1, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, pos1);
+    function checknull(callback) {
+      var pos2 = {a: null};
+
+      v.check(pos2, function(err, cleaned) {
+        assert.ifError(err);
+        assert.deepEqual(cleaned, pos2);
+        callback();
+      });
+    }
+  ],
+  function(err) {
+     test.finish();
   });
-  
-  var pos2 = {a: null};
-
-  v.check(pos2, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, pos2);
-  });
-
-  test.finish();
 };
