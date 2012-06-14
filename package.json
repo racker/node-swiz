@@ -12,7 +12,7 @@
   ],
   "name": "swiz",
   "description": "Serilization and Validation Framework for objects in RESTful APIs",
-  "version": "0.4.38",
+  "version": "0.4.39",
   "homepage": "https://github.com/racker/node-swiz",
   "repository": {
     "type": "git",
