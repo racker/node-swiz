@@ -2242,41 +2242,6 @@ exports['test_V1UUID'] = function(test, assert) {
   });  
 };
 
-/*
-exports['test_UUID'] = function(test, assert) {
-  var v = new V({
-      a: new C().isUUID()
-  });
-  
-  //positive case
-  var pos = { a: 'abcde012-Ab34-1D56-8FabC7892345' };
-  v.check(pos, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, pos, 'isUUID test');
-  });
-
-  //negative case 1
-  var neg1 = { a : 'ab@de012-Ab34-1D56-8FabC7892345' };
-  v.check(neg1, function(err, cleaned) {
-    assert.deepEqual(err.message, "Invalid UUID", 'isUUID test');
-  });
-
-  //negative case 2
-  var neg2 = { a : 'abcde012-Ab34-1D56-4FabC7892345' };
-  v.check(neg2, function(err, cleaned) {
-    assert.deepEqual(err.message, "Unsupported UUID variant", 'isUUID test');
-  });
-  
-  //negative case 3
-  var neg3 = { a : 'abcde012-Ab34-2D56-8FabC7892345' };
-  v.check(neg3, function(err, cleaned) {
-    assert.deepEqual(err.message, "UUID is not version 1", 'isUUID test');
-  });
-  
-  test.finish();
-};
-*/
-
 exports['test_getValidatorPos_hasValidator_and_getValidatorAtPos'] = function(test, assert) {
   var v = new V({
     a: C().len(1).isNumeric(),
@@ -2298,4 +2263,34 @@ exports['test_getValidatorPos_hasValidator_and_getValidatorAtPos'] = function(te
   assert.equal(v.schema.b.getValidatorAtPos(6), null);
 
   test.finish();
+};
+
+exports['test_optional_string'] = function(test, assert) {
+  var v = new V({
+    a: new C().optional().isString().len(1, 5)
+  });
+
+  async.series([
+    function check1(callback) {
+      var pos1 = {a: 'abc'};
+      v.check(pos1, function(err, cleaned) {
+        assert.ifError(err);
+        assert.deepEqual(cleaned, pos1);
+        callback();
+      });
+    },
+
+    function checknull(callback) {
+      var pos2 = {a: null};
+
+      v.check(pos2, function(err, cleaned) {
+        assert.ifError(err);
+        assert.deepEqual(cleaned, pos2);
+        callback();
+      });
+    }
+  ],
+  function(err) {
+     test.finish();
+  });
 };
