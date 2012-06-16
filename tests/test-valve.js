@@ -1145,6 +1145,43 @@ exports['test_validate_not_contains'] = function(test, assert) {
 };
 
 
+exports['test_validate_notIn'] = function(test, assert) {
+  var v = new V({
+    a: C().notIn(['foo', 'bar'])
+  });
+
+  async.series([
+    function positiveCase1(callback) {
+      var obj = { a: 'ponies'};
+      v.check(obj, function(err, cleaned) {
+        assert.ifError(err);
+        assert.deepEqual(cleaned, obj);
+        callback();
+      });
+    },
+
+    function negativeCase1(callback) {
+      var obj = { a: 'foo'};
+
+      v.check(obj, function(err, cleaned) {
+        assert.match(err.message, /Value foo is blacklisted/);
+        callback();
+      });
+    },
+
+    function negativeCase2(callback) {
+      var obj = { a: 'bar'};
+
+      v.check(obj, function(err, cleaned) {
+        assert.match(err.message, /Value bar is blacklisted/);
+        callback();
+      });
+    }
+
+  ], test.finish);
+};
+
+
 exports['test_validate_chain'] = function(test, assert) {
   var v = new V({
     a: C().len(1).isNumeric()
