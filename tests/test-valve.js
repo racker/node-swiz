@@ -1151,7 +1151,7 @@ exports['test_validate_notIn'] = function(test, assert) {
   });
 
   async.series([
-    function positiveCase1(callback) {
+    function positiveCaseString(callback) {
       var obj = { a: 'ponies'};
       v.check(obj, function(err, cleaned) {
         assert.ifError(err);
@@ -1160,7 +1160,25 @@ exports['test_validate_notIn'] = function(test, assert) {
       });
     },
 
-    function negativeCase1(callback) {
+    function positiveCaseArray(callback) {
+      var obj = { a: ['ponies']};
+      v.check(obj, function(err, cleaned) {
+        assert.ifError(err);
+        assert.deepEqual(cleaned, obj);
+        callback();
+      });
+    },
+
+    function positiveCaseObject(callback) {
+      var obj = { a: {'key': 'ponies'}};
+      v.check(obj, function(err, cleaned) {
+        assert.ifError(err);
+        assert.deepEqual(cleaned, obj);
+        callback();
+      });
+    },
+
+    function negativeCaseString1(callback) {
       var obj = { a: 'foo'};
 
       v.check(obj, function(err, cleaned) {
@@ -1169,15 +1187,32 @@ exports['test_validate_notIn'] = function(test, assert) {
       });
     },
 
-    function negativeCase2(callback) {
+    function negativeCaseString2(callback) {
       var obj = { a: 'bar'};
 
       v.check(obj, function(err, cleaned) {
         assert.match(err.message, /Value bar is blacklisted/);
         callback();
       });
-    }
+    },
 
+    function negativeCaseArray(callback) {
+      var obj = { a: ['ponies', 'foo', 'unicorns']};
+
+      v.check(obj, function(err, cleaned) {
+        assert.match(err.message, /Value foo is blacklisted/);
+        callback();
+      });
+    },
+
+    function negativeCaseObject(callback) {
+      var obj = { a: {'key1': 'value1', 'key2': 'value2', 'ponies': 'ponies', 'foo': 'bar'}};
+
+      v.check(obj, function(err, cleaned) {
+        assert.match(err.message, /Value foo is blacklisted/);
+        callback();
+      });
+    }
   ], test.finish);
 };
 
