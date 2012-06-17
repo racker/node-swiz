@@ -231,7 +231,8 @@ exports['test_check_strict_mode'] = function(test, assert) {
       var obj = {'a': 5, 'b': 5};
       v.check(obj, {'strict': true}, function(err, cleaned) {
         assert.ok(err);
-        assert.match(err, /Invalid key: b/);
+        assert.equal(err.key, 'b');
+        assert.match(err.message, /This key is not allowed/);
         callback();
       });
     }
