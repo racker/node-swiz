@@ -213,6 +213,36 @@ exports['test_validate_int'] = function(test, assert) {
 };
 
 
+exports['test_check_strict_mode'] = function(test, assert) {
+  var v = new V({
+    a: C().isInt()
+  });
+
+  async.series([
+    function pos1(callback) {
+      var obj = {'a': 5};
+      v.check(obj, {'strict': true}, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function neg1(callback) {
+      var obj = {'a': 5, 'b': 5};
+      v.check(obj, {'strict': true}, function(err, cleaned) {
+        assert.ok(err);
+        assert.match(err, /Invalid key: b/);
+        callback();
+      });
+    }
+  ],
+
+  function(err) {
+    test.finish();
+  });
+};
+
+
 exports['test_transformation_validator'] = function(test, assert) {
   var v = new V({
     a: C().isInt().toInt().optional()
