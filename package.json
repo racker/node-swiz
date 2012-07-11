@@ -12,7 +12,7 @@
   ],
   "name": "swiz",
   "description": "Serialization and Validation Framework for objects in RESTful APIs",
-  "version": "0.4.46",
+  "version": "0.4.47",
   "homepage": "https://github.com/racker/node-swiz",
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
   },
   "dependencies" : {
     "async": "0.1.18",
-    "validator": "0.2.7",
+    "validator": "0.4.9",
     "ipv6": "2.0.2",
     "elementtree": "0.1.1",
     "sprintf": "0.1.1"
