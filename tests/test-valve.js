@@ -483,14 +483,6 @@ exports['test_isHostnameOrIp'] = function(test, assert) {
         assert.ok(err);
         callback();
       });
-    },
-
-    function neg2(callback) {
-      var neg = { a: '12356' };
-      v.check(neg, function(err, cleaned) {
-        assert.ok(err);
-        callback();
-      });
     }
   ],
 
@@ -1016,12 +1008,12 @@ exports['test_validate_len'] = function(test, assert) {
   // negative case
   var neg = { a: '' };
   v.check(neg, function(err, cleaned) {
-    assert.deepEqual(err.message, 'String is too small', 'len test (negative case)');
+    assert.deepEqual(err.message, 'String is not in range', 'len test (negative case)');
   });
 
   neg = { a: 'abc' };
   v.check(neg, function(err, cleaned) {
-    assert.deepEqual(err.message, 'String is too large', 'len test (negative case 2)');
+    assert.deepEqual(err.message, 'String is not in range', 'len test (negative case 2)');
   });
 
   test.finish();
@@ -1264,7 +1256,7 @@ exports['test_validate_chain'] = function(test, assert) {
   // negative case
   var neg = { a: '' };
   v.check(neg, function(err, cleaned) {
-    assert.deepEqual(err.message, 'String is too small', 'notContains test (negative case)');
+    assert.deepEqual(err.message, 'String is not in range', 'notContains test (negative case)');
   });
 
   // negative case
