@@ -1692,6 +1692,50 @@ exports['test_validate_nested_hash'] = function(test, assert) {
 };
 
 
+exports['test_hash_limit'] = function(test, assert) {
+  var v = new V({
+    a: C().isHash(C().isString(), C().isString(), 2),
+    b: C().isHash(C().optional().isString(), C().isString(), 2).numItems(1, 5)
+  });
+
+  // positive case
+  var obj = { a: {'test' : 'test'}, b: {'test': 'test2'} };
+  var obj_ext = { a: {'test' : 'test'}, b: {'test' : 'test2'}, c: 2 };
+  v.check(obj_ext, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj, 'hash test limit');
+  });
+
+  // negative case
+  var neg = {
+    a: { 'test' : 'test' },
+    b: { 'test' : 'test' },
+    c: { 'test' : 'test' },
+    d: { 'test' : 'test'}
+  };
+  v.check(neg, function(err, cleaned) {
+    assert.deepEqual(err.message, "Element limit exceeded", 'hash test limit (negative case)');
+  });
+
+  // negative case
+  var neg = {
+    a: { 'test' : 'test' },
+    b: {
+      'test' : 'test',
+      'test' : 'test',
+      'test' : 'test',
+      'test' : 'test',
+      'test' : 'test'
+    }
+  };
+  v.check(neg, function(err, cleaned) {
+    assert.deepEqual(err.message, "Element limit exceeded", 'hash test limit (negative case)');
+  });
+
+  test.finish();
+};
+
+
 exports['test_validate_enum'] = function(test, assert) {
   var v = new V({
         a: C().enumerated({inactive: 0, active: 1, full_no_new_checks: 2}).optional()
