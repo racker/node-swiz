@@ -1008,12 +1008,12 @@ exports['test_validate_len'] = function(test, assert) {
   // negative case
   var neg = { a: '' };
   v.check(neg, function(err, cleaned) {
-    assert.deepEqual(err.message, 'String is not in range', 'len test (negative case)');
+    assert.deepEqual(err.message, 'String is not in range (1..2)', 'len test (negative case)');
   });
 
   neg = { a: 'abc' };
   v.check(neg, function(err, cleaned) {
-    assert.deepEqual(err.message, 'String is not in range', 'len test (negative case 2)');
+    assert.deepEqual(err.message, 'String is not in range (1..2)', 'len test (negative case 2)');
   });
 
   test.finish();
@@ -1256,7 +1256,7 @@ exports['test_validate_chain'] = function(test, assert) {
   // negative case
   var neg = { a: '' };
   v.check(neg, function(err, cleaned) {
-    assert.deepEqual(err.message, 'String is not in range', 'notContains test (negative case)');
+    assert.deepEqual(err.message, 'String is not in range (1..Infinity)', 'notContains test (negative case)');
   });
 
   // negative case
