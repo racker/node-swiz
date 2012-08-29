@@ -587,6 +587,12 @@ exports['test_validate_ip'] = function(test, assert) {
     assert.deepEqual(err.message, 'Invalid IP', 'IP test (negative case 2)');
   });
 
+  neg = {a: {b: null} };
+  v.check(neg, function(err, cleaned) {
+    console.log(err);
+    assert.deepEqual(err.message, 'String is empty', 'IP test (negative case 3)');
+  });
+
   // IPv6 normalization
   obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
   obj_ext = { a: '2001:db8::1:0:0:1'};
