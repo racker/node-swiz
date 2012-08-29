@@ -590,7 +590,7 @@ exports['test_validate_ip'] = function(test, assert) {
   neg = {a: {b: null} };
   v.check(neg, function(err, cleaned) {
     console.log(err);
-    assert.deepEqual(err.message, 'String is empty', 'IP test (negative case 3)');
+    assert.deepEqual(err.message, 'IP address is not a string', 'IP test (negative case 3)');
   });
 
   // IPv6 normalization
