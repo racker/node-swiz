@@ -379,6 +379,7 @@ exports['test_validate_ipv6'] = function(test, assert) {
     a: C().isIPv6()
   });
 
+
   // positive case
   var obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
   var obj_ext = { a: '2001:0db8:0000:0000:0001:0000:0000:0001', b: 2 };
@@ -589,7 +590,6 @@ exports['test_validate_ip'] = function(test, assert) {
 
   neg = {a: {b: null} };
   v.check(neg, function(err, cleaned) {
-    console.log(err);
     assert.deepEqual(err.message, 'IP address is not a string', 'IP test (negative case 3)');
   });
 
