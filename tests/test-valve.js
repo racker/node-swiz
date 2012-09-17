@@ -600,6 +600,12 @@ exports['test_validate_ip'] = function(test, assert) {
     assert.ifError(err);
     assert.deepEqual(cleaned, obj, 'IPv6 test and normalization');
   });
+
+  // net.isIP would claim this is invalid, despite it being valid ipv6
+  obj = { a: '1234::' };
+  v.check(obj, function(err, cleaned) {
+    assert.ifError(err);
+  });
   test.finish();
 };
 
