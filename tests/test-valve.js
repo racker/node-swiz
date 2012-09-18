@@ -379,6 +379,7 @@ exports['test_validate_ipv6'] = function(test, assert) {
     a: C().isIPv6()
   });
 
+
   // positive case
   var obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
   var obj_ext = { a: '2001:0db8:0000:0000:0001:0000:0000:0001', b: 2 };
@@ -589,7 +590,6 @@ exports['test_validate_ip'] = function(test, assert) {
 
   neg = {a: {b: null} };
   v.check(neg, function(err, cleaned) {
-    console.log(err);
     assert.deepEqual(err.message, 'IP address is not a string', 'IP test (negative case 3)');
   });
 
@@ -599,6 +599,12 @@ exports['test_validate_ip'] = function(test, assert) {
   v.check(obj_ext, function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, obj, 'IPv6 test and normalization');
+  });
+
+  // net.isIP would claim this is invalid, despite it being valid ipv6
+  obj = { a: '1234::' };
+  v.check(obj, function(err, cleaned) {
+    assert.ifError(err);
   });
   test.finish();
 };
@@ -633,7 +639,7 @@ exports['test_validate_ip_blacklist'] = function(test, assert) {
 
   neg = {a: 'fc00:1:0:0:1' };
   v.check(neg, function(err, cleaned) {
-    assert.match(err.message, /Incorrect number of groups found/, 'IP test (negative case 2)');
+    assert.match(err.message, /Invalid IP/, 'IP test (negative case 2)');
   });
 
 
