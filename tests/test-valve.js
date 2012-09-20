@@ -569,15 +569,107 @@ exports['test_validate_ip'] = function(test, assert) {
     a: C().isIP()
   });
 
-  // positive case
+  // positive test cases
   var obj = { a: '192.168.0.1' };
   var obj_ext = { a: '192.168.0.1', b: 2 };
   v.check(obj_ext, function(err, cleaned) {
     assert.ifError(err);
-    assert.deepEqual(cleaned, obj, 'IP test');
+    assert.deepEqual(cleaned, obj, 'isIP should accept dotted-quad syntax for IPv4 addresses');
   });
 
-  // negative case
+  obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
+  obj_ext = { a: '2001:0db8:0000:0000:0001:0000:0000:0001', b: 2 };
+  v.check(obj_ext, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj, 'isIP should accept a coloned-octet syntax for IPv6 addresses');
+  });
+
+  obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
+  obj_ext = { a: '2001:0db8::0001:0000:0000:0001', b: 2 };
+  v.check(obj_ext, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj, 'isIP should accept a shortened syntax for IPv6 addresses');
+  });
+
+  obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
+  obj_ext = { a: '2001:0db8:0000:0000:0001::0001', b: 2 };
+  v.check(obj_ext, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj, 'isIP should accept a shortened syntax for IPv6 addresses');
+  });
+
+  obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
+  obj_ext = { a: '2001:db8:0:0:1:0:0:1', b: 2 };
+  v.check(obj_ext, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj, 'isIP should accept a coloned-octet syntax with leading zeros blanked for IPv6 addresses');
+  });
+
+  obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
+  obj_ext = { a: '2001:db8::1:0:0:1', b: 2 };
+  v.check(obj_ext, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj, 'isIP should accept a shortened syntax with leading zeros blanked for IPv6 addresses');
+  });
+
+  obj = { a: '1234:0000:0000:0000:0000:0000:0000:0000' };
+  obj_ext = { a: '1234::', b: 2 };
+  v.check(obj_ext, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj, 'isIP should accept a tail-truncated address for IPv6 addresses');
+  });
+
+  obj = { a: '0000:0000:0000:0000:0000:0000:0000:1234' };
+  obj_ext = { a: '::1234', b: 2 };
+  v.check(obj_ext, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj, 'isIP should accept a head-truncated address for IPv6 addresses');
+  });
+
+  obj = { a: '0000:0000:0000:0000:0000:0000:0000:0000' };
+  obj_ext = { a: '::', b: 2 };
+  v.check(obj_ext, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj, 'isIP should accept a nil IPv6 address');
+  });
+
+  // Validator chokes on this, as though it followed RFC-5952,
+  // yet it accepts input that would otherwise break RFC-5952
+  // compliance.  TODO(sfalvo): Fix validator.
+  //
+  //obj = { a: '0000:0000:0000:0000:0000:0000:7F00:0001' };
+  //obj_ext = { a: '::7F00:0001', b: 2 };
+  //v.check(obj_ext, function(err, cleaned) {
+  //  assert.ifError(err);
+  //  assert.deepEqual(cleaned, obj, 'isIP should accept an IPv6 address with capital letters');
+  //});
+
+  // Validator chokes on this, in complete disobediance to
+  // RFC-5952 or RFC-4291.  TODO(sfalvo): Fix validator.
+  //obj = { a: '0000:0000:0000:0000:0000:0000:7F00:0001' };
+  //obj_ext = { a: '::127.0.0.1', b: 2 };
+  //v.check(obj_ext, function(err, cleaned) {
+  //  assert.ifError(err);
+  //  assert.deepEqual(cleaned, obj, 'isIP should accept an IPv4 address embedded in an IPv6 address');
+  //});
+
+  // Validator chokes on this.  TODO(sfalvo): Fix validator.
+  // obj = { a: '192.168.0.1' };
+  // obj_ext = { a: '192.168.000.001', b: 2 };
+  // v.check(obj_ext, function(err, cleaned) {
+  //   assert.ifError(err);
+  //   assert.deepEqual(cleaned, obj, 'isIP should accept an IPv4 address without leading zeros blanked.');
+  // });
+
+  // Validator chokes on this.  TODO(sfalvo): Fix validator.
+  //obj = { a: '0000:0000:0000:0000:0000:0000:C0A8:0001' };
+  //obj_ext = { a: '::192.168.000.001', b: 2 };
+  //v.check(obj_ext, function(err, cleaned) {
+  //  assert.ifError(err);
+  //  assert.deepEqual(cleaned, obj, 'isIP should accept a nil IPv6 address');
+  //});
+
+  // negative test cases
   var neg = { a: 'invalid/' };
   v.check(neg, function(err, cleaned) {
     assert.deepEqual(err.message, 'Invalid IP', 'IP test (negative case)');
