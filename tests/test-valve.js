@@ -570,142 +570,142 @@ exports['test_validate_ip'] = function(test, assert) {
   });
 
   // positive test cases
-  var obj = { a: '192.168.0.1' };
-  var obj_ext = { a: '192.168.0.1', b: 2 };
-  v.check(obj_ext, function(err, cleaned) {
+  var expected = { a: '192.168.0.1' };
+  var provided = { a: '192.168.0.1', b: 2 };
+  v.check(provided, function(err, cleaned) {
     assert.ifError(err);
-    assert.deepEqual(cleaned, obj, 'isIP should accept dotted-quad syntax for IPv4 addresses');
+    assert.deepEqual(cleaned, expected, 'isIP should accept dotted-quad syntax for IPv4 addresses');
   });
 
-  obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  obj_ext = { a: '2001:0db8:0000:0000:0001:0000:0000:0001', b: 2 };
-  v.check(obj_ext, function(err, cleaned) {
+  expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
+  provided = { a: '2001:0db8:0000:0000:0001:0000:0000:0001', b: 2 };
+  v.check(provided, function(err, cleaned) {
     assert.ifError(err);
-    assert.deepEqual(cleaned, obj, 'isIP should accept a coloned-octet syntax for IPv6 addresses');
+    assert.deepEqual(cleaned, expected, 'isIP should accept a coloned-octet syntax for IPv6 addresses');
   });
 
-  obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  obj_ext = { a: '2001:0db8::0001:0000:0000:0001', b: 2 };
-  v.check(obj_ext, function(err, cleaned) {
+  expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
+  provided = { a: '2001:0db8::0001:0000:0000:0001', b: 2 };
+  v.check(provided, function(err, cleaned) {
     assert.ifError(err);
-    assert.deepEqual(cleaned, obj, 'isIP should accept a shortened syntax for IPv6 addresses');
+    assert.deepEqual(cleaned, expected, 'isIP should accept a shortened syntax for IPv6 addresses');
   });
 
-  obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  obj_ext = { a: '2001:0db8:0000:0000:0001::0001', b: 2 };
-  v.check(obj_ext, function(err, cleaned) {
+  expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
+  provided = { a: '2001:0db8:0000:0000:0001::0001', b: 2 };
+  v.check(provided, function(err, cleaned) {
     assert.ifError(err);
-    assert.deepEqual(cleaned, obj, 'isIP should accept a shortened syntax for IPv6 addresses');
+    assert.deepEqual(cleaned, expected, 'isIP should accept a shortened syntax for IPv6 addresses');
   });
 
-  obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  obj_ext = { a: '2001:db8:0:0:1:0:0:1', b: 2 };
-  v.check(obj_ext, function(err, cleaned) {
+  expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
+  provided = { a: '2001:db8:0:0:1:0:0:1', b: 2 };
+  v.check(provided, function(err, cleaned) {
     assert.ifError(err);
-    assert.deepEqual(cleaned, obj, 'isIP should accept a coloned-octet syntax with leading zeros blanked for IPv6 addresses');
+    assert.deepEqual(cleaned, expected, 'isIP should accept a coloned-octet syntax with leading zeros blanked for IPv6 addresses');
   });
 
-  obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  obj_ext = { a: '2001:db8::1:0:0:1', b: 2 };
-  v.check(obj_ext, function(err, cleaned) {
+  expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
+  provided = { a: '2001:db8::1:0:0:1', b: 2 };
+  v.check(provided, function(err, cleaned) {
     assert.ifError(err);
-    assert.deepEqual(cleaned, obj, 'isIP should accept a shortened syntax with leading zeros blanked for IPv6 addresses');
+    assert.deepEqual(cleaned, expected, 'isIP should accept a shortened syntax with leading zeros blanked for IPv6 addresses');
   });
 
-  obj = { a: '1234:0000:0000:0000:0000:0000:0000:0000' };
-  obj_ext = { a: '1234::', b: 2 };
-  v.check(obj_ext, function(err, cleaned) {
+  expected = { a: '1234:0000:0000:0000:0000:0000:0000:0000' };
+  provided = { a: '1234::', b: 2 };
+  v.check(provided, function(err, cleaned) {
     assert.ifError(err);
-    assert.deepEqual(cleaned, obj, 'isIP should accept a tail-truncated address for IPv6 addresses');
+    assert.deepEqual(cleaned, expected, 'isIP should accept a tail-truncated address for IPv6 addresses');
   });
 
-  obj = { a: '0000:0000:0000:0000:0000:0000:0000:1234' };
-  obj_ext = { a: '::1234', b: 2 };
-  v.check(obj_ext, function(err, cleaned) {
+  expected = { a: '0000:0000:0000:0000:0000:0000:0000:1234' };
+  provided = { a: '::1234', b: 2 };
+  v.check(provided, function(err, cleaned) {
     assert.ifError(err);
-    assert.deepEqual(cleaned, obj, 'isIP should accept a head-truncated address for IPv6 addresses');
+    assert.deepEqual(cleaned, expected, 'isIP should accept a head-truncated address for IPv6 addresses');
   });
 
-  obj = { a: '0000:0000:0000:0000:0000:0000:0000:0000' };
-  obj_ext = { a: '::', b: 2 };
-  v.check(obj_ext, function(err, cleaned) {
+  expected = { a: '0000:0000:0000:0000:0000:0000:0000:0000' };
+  provided = { a: '::', b: 2 };
+  v.check(provided, function(err, cleaned) {
     assert.ifError(err);
-    assert.deepEqual(cleaned, obj, 'isIP should accept a nil IPv6 address');
+    assert.deepEqual(cleaned, expected, 'isIP should accept a nil IPv6 address');
   });
 
   // Validator chokes on this, as though it followed RFC-5952,
   // yet it accepts input that would otherwise break RFC-5952
   // compliance.  TODO(sfalvo): Fix validator.
   //
-  //obj = { a: '0000:0000:0000:0000:0000:0000:7F00:0001' };
-  //obj_ext = { a: '::7F00:0001', b: 2 };
-  //v.check(obj_ext, function(err, cleaned) {
+  //expected = { a: '0000:0000:0000:0000:0000:0000:7F00:0001' };
+  //provided = { a: '::7F00:0001', b: 2 };
+  //v.check(provided, function(err, cleaned) {
   //  assert.ifError(err);
-  //  assert.deepEqual(cleaned, obj, 'isIP should accept an IPv6 address with capital letters');
+  //  assert.deepEqual(cleaned, expected, 'isIP should accept an IPv6 address with capital letters');
   //});
 
   // Validator chokes on this, in complete disobediance to
   // RFC-5952 or RFC-4291.  TODO(sfalvo): Fix validator.
-  //obj = { a: '0000:0000:0000:0000:0000:0000:7F00:0001' };
-  //obj_ext = { a: '::127.0.0.1', b: 2 };
-  //v.check(obj_ext, function(err, cleaned) {
+  //expected = { a: '0000:0000:0000:0000:0000:0000:7F00:0001' };
+  //provided = { a: '::127.0.0.1', b: 2 };
+  //v.check(provided, function(err, cleaned) {
   //  assert.ifError(err);
-  //  assert.deepEqual(cleaned, obj, 'isIP should accept an IPv4 address embedded in an IPv6 address');
+  //  assert.deepEqual(cleaned, expected, 'isIP should accept an IPv4 address embedded in an IPv6 address');
   //});
 
   // Validator chokes on this.  TODO(sfalvo): Fix validator.
-  // obj = { a: '192.168.0.1' };
-  // obj_ext = { a: '192.168.000.001', b: 2 };
-  // v.check(obj_ext, function(err, cleaned) {
+  // expected = { a: '192.168.0.1' };
+  // provided = { a: '192.168.000.001', b: 2 };
+  // v.check(provided, function(err, cleaned) {
   //   assert.ifError(err);
-  //   assert.deepEqual(cleaned, obj, 'isIP should accept an IPv4 address without leading zeros blanked.');
+  //   assert.deepEqual(cleaned, expected, 'isIP should accept an IPv4 address without leading zeros blanked.');
   // });
 
   // Validator chokes on this.  TODO(sfalvo): Fix validator.
-  //obj = { a: '0000:0000:0000:0000:0000:0000:C0A8:0001' };
-  //obj_ext = { a: '::192.168.000.001', b: 2 };
-  //v.check(obj_ext, function(err, cleaned) {
+  //expected = { a: '0000:0000:0000:0000:0000:0000:C0A8:0001' };
+  //provided = { a: '::192.168.000.001', b: 2 };
+  //v.check(provided, function(err, cleaned) {
   //  assert.ifError(err);
-  //  assert.deepEqual(cleaned, obj, 'isIP should accept a nil IPv6 address');
+  //  assert.deepEqual(cleaned, expected, 'isIP should accept a nil IPv6 address');
   //});
 
   // negative test cases
-  var neg = { a: 'invalid/' };
-  v.check(neg, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'IP test (negative case)');
+  var provided = { a: 'invalid/' };
+  v.check(provided, function(err, cleaned) {
+    assert.deepEqual(err.message, 'Invalid IP', 'IP test (providedative case)');
   });
 
-  neg = {a: '12345' };
-  v.check(neg, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'IP test (negative case 2)');
+  provided = {a: '12345' };
+  v.check(provided, function(err, cleaned) {
+    assert.deepEqual(err.message, 'Invalid IP', 'IP test (providedative case 2)');
   });
 
-  neg = {a: {b: null} };
-  v.check(neg, function(err, cleaned) {
-    assert.deepEqual(err.message, 'IP address is not a string', 'IP test (negative case 3)');
+  provided = {a: {b: null} };
+  v.check(provided, function(err, cleaned) {
+    assert.deepEqual(err.message, 'IP address is not a string', 'IP test (providedative case 3)');
   });
 
   // Validator doesn't choke on this in the way we expect it should.
   // TODO(sfalvo): Fix validator.
-  // neg = {a: '2001:0db8:0:0:1:0:0:127.0.0.1'};
-  // v.check(neg, function(err, cleaned) {
+  // provided = {a: '2001:0db8:0:0:1:0:0:127.0.0.1'};
+  // v.check(provided, function(err, cleaned) {
   //   console.error(err);
   //   console.error(cleaned);
   //   assert.deepEqual(err.message, 'Invalid IP', 'Malformed IPv6 address w/ embedded IPv4 address');
   // });
 
-  neg = {a: '2001:0db8::1::1' };
-  v.check(neg, function(err, cleaned) {
+  provided = {a: '2001:0db8::1::1' };
+  v.check(provided, function(err, cleaned) {
     assert.deepEqual(err.message, 'Invalid IP', 'IPv6 can only have at most one "::" symbol in it.');
   });
 
-  neg = {a: '2001:0db8:0000:0000:0001:0000:0000'};
-  v.check(neg, function(err, cleaned) {
+  provided = {a: '2001:0db8:0000:0000:0001:0000:0000'};
+  v.check(provided, function(err, cleaned) {
     assert.deepEqual(err.message, 'Invalid IP', 'IPv6 coloned-octet notation requires eight hex words.');
   });
 
-  neg = {a: '2001:0db8::1:0:0:00001' };
-  v.check(neg, function(err, cleaned) {
+  provided = {a: '2001:0db8::1:0:0:00001' };
+  v.check(provided, function(err, cleaned) {
     assert.deepEqual(err.message, 'Invalid IP', 'IPv6 hex groups can be at most 4 characters long.');
   });
 
@@ -716,18 +716,18 @@ exports['test_validate_ip'] = function(test, assert) {
   }
   stack_attack = '1'+stack_attack;	// Make sure it starts with a digit
 
-  neg = {a: stack_attack};
-  v.check(neg, function(err, cleaned) {
+  provided = {a: stack_attack};
+  v.check(provided, function(err, cleaned) {
     assert.deepEqual(err.message, 'Invalid IP', 'Stack overflow attacks, to 1MB, should be rejected out of hand.');
   });
 
-  neg = {a: '2001:0db8:0:0:1:0:0:'+stack_attack};
-  v.check(neg, function(err, cleaned) {
+  provided = {a: '2001:0db8:0:0:1:0:0:'+stack_attack};
+  v.check(provided, function(err, cleaned) {
     assert.deepEqual(err.message, 'Invalid IP', 'Stack overflow attacks, to 1MB, should be rejected out of hand.');
   });
 
-  neg = {a: '192.168.0.'+stack_attack};
-  v.check(neg, function(err, cleaned) {
+  provided = {a: '192.168.0.'+stack_attack};
+  v.check(provided, function(err, cleaned) {
     assert.deepEqual(err.message, 'Invalid IP', 'Stack overflow attacks, to 1MB, should be rejected out of hand.');
   });
 
