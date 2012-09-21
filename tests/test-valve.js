@@ -633,41 +633,19 @@ exports['test_validate_ip'] = function(test, assert) {
     assert.deepEqual(cleaned, expected, 'isIP should accept a nil IPv6 address');
   });
 
-  // Validator chokes on this, as though it followed RFC-5952,
-  // yet it accepts input that would otherwise break RFC-5952
-  // compliance.  TODO(sfalvo): Fix validator.
-  //
-  //expected = { a: '0000:0000:0000:0000:0000:0000:7F00:0001' };
-  //provided = { a: '::7F00:0001', b: 2 };
-  //v.check(provided, function(err, cleaned) {
-  //  assert.ifError(err);
-  //  assert.deepEqual(cleaned, expected, 'isIP should accept an IPv6 address with capital letters');
-  //});
+  expected = { a: '0000:0000:0000:0000:0000:0000:7f00:0001' };
+  provided = { a: '::7F00:0001', b: 2 };
+  v.check(provided, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, expected, 'isIP should accept an IPv6 address with capital letters');
+  });
 
-  // Validator chokes on this, in complete disobediance to
-  // RFC-5952 or RFC-4291.  TODO(sfalvo): Fix validator.
-  //expected = { a: '0000:0000:0000:0000:0000:0000:7F00:0001' };
-  //provided = { a: '::127.0.0.1', b: 2 };
-  //v.check(provided, function(err, cleaned) {
-  //  assert.ifError(err);
-  //  assert.deepEqual(cleaned, expected, 'isIP should accept an IPv4 address embedded in an IPv6 address');
-  //});
-
-  // Validator chokes on this.  TODO(sfalvo): Fix validator.
-  // expected = { a: '192.168.0.1' };
-  // provided = { a: '192.168.000.001', b: 2 };
-  // v.check(provided, function(err, cleaned) {
-  //   assert.ifError(err);
-  //   assert.deepEqual(cleaned, expected, 'isIP should accept an IPv4 address without leading zeros blanked.');
-  // });
-
-  // Validator chokes on this.  TODO(sfalvo): Fix validator.
-  //expected = { a: '0000:0000:0000:0000:0000:0000:C0A8:0001' };
-  //provided = { a: '::192.168.000.001', b: 2 };
-  //v.check(provided, function(err, cleaned) {
-  //  assert.ifError(err);
-  //  assert.deepEqual(cleaned, expected, 'isIP should accept a nil IPv6 address');
-  //});
+  expected = { a: '0000:0000:0000:0000:0000:0000:7f00:0001' };
+  provided = { a: '::127.0.0.1', b: 2 };
+  v.check(provided, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, expected, 'isIP should accept an IPv4 address embedded in an IPv6 address');
+  });
 
   // negative test cases
   var provided = { a: 'invalid/' };
@@ -685,14 +663,10 @@ exports['test_validate_ip'] = function(test, assert) {
     assert.deepEqual(err.message, 'IP address is not a string', 'IP test (providedative case 3)');
   });
 
-  // Validator doesn't choke on this in the way we expect it should.
-  // TODO(sfalvo): Fix validator.
-  // provided = {a: '2001:0db8:0:0:1:0:0:127.0.0.1'};
-  // v.check(provided, function(err, cleaned) {
-  //   console.error(err);
-  //   console.error(cleaned);
-  //   assert.deepEqual(err.message, 'Invalid IP', 'Malformed IPv6 address w/ embedded IPv4 address');
-  // });
+  provided = {a: '2001:0db8:0:0:1:0:0:127.0.0.1'};
+  v.check(provided, function(err, cleaned) {
+    assert.deepEqual(err.message, 'Incorrect number of groups found', 'Malformed IPv6 address w/ embedded IPv4 address');
+  });
 
   provided = {a: '2001:0db8::1::1' };
   v.check(provided, function(err, cleaned) {
