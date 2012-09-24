@@ -22,6 +22,21 @@ var C = swiz.Chain;
 var O = swiz.struct.Obj;
 var F = swiz.struct.Field;
 
+// Useful utilities for oft-repeated inner functions in various checks.
+
+function invalidIpFailMsgAsserter(assert, msg) {
+  return function(err, cleaned) {
+    assert.deepEqual(err.message, 'Invalid IP', msg);
+  }
+}
+
+function equalAsserter(assert, expected, msg) {
+  return function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, expected, msg);
+  }
+}
+
 // Mock set of serialization defs
 var def = [
   O('Node',
@@ -564,84 +579,53 @@ exports['test_validate_isAddressPair'] = function(test, assert) {
 // positive case 2
 };
 
-function invalidIpFailMsgAsserter(assert, msg) {
-  return function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', msg);
-  }
-}
-
 exports['test_validate_ip'] = function(test, assert) {
   var invalidIpFailMsg = invalidIpFailMsgAsserter.bind(null, assert);
+  var shouldEqual = equalAsserter.bind(null, assert);
   var v = new V({
     a: C().isIP()
   });
 
   // positive test cases
-  var expected = { a: '192.168.0.1' };
-  v.check({a: '192.168.0.1', b: 2}, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, expected, 'isIP should accept dotted-quad syntax for IPv4 addresses');
-  });
+  v.check({a: '192.168.0.1', b: 2},
+      shouldEqual({a: '192.168.0.1'}, 'isIP should accept dotted-quad syntax for IPv4 addresses'));
 
-  expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  v.check({a: '2001:0db8:0000:0000:0001:0000:0000:0001', b: 2}, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, expected, 'isIP should accept a coloned-octet syntax for IPv6 addresses');
-  });
+  var expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
 
-  expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  v.check({a: '2001:0db8::0001:0000:0000:0001', b: 2}, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, expected, 'isIP should accept a shortened syntax for IPv6 addresses');
-  });
+  v.check({a: '2001:0db8:0000:0000:0001:0000:0000:0001', b: 2},
+      shouldEqual(expected , 'isIP should accept a coloned-octet syntax for IPv6 addresses'));
 
-  expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  v.check({a: '2001:0db8:0000:0000:0001::0001', b: 2}, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, expected, 'isIP should accept a shortened syntax for IPv6 addresses');
-  });
+  v.check({a: '2001:0db8::0001:0000:0000:0001', b: 2},
+      shouldEqual(expected, 'isIP should accept a shortened syntax for IPv6 addresses'));
 
-  expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  v.check({a: '2001:db8:0:0:1:0:0:1', b: 2}, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, expected, 'isIP should accept a coloned-octet syntax with leading zeros blanked for IPv6 addresses');
-  });
+  v.check({a: '2001:0db8:0000:0000:0001::0001', b: 2},
+      shouldEqual(expected, 'isIP should accept a shortened syntax for IPv6 addresses'));
 
-  expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  v.check({a: '2001:db8::1:0:0:1', b: 2}, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, expected, 'isIP should accept a shortened syntax with leading zeros blanked for IPv6 addresses');
-  });
+  v.check({a: '2001:db8:0:0:1:0:0:1', b: 2},
+      shouldEqual(expected, 'isIP should accept a coloned-octet with leading zeros blanked for IPv6 addresses'));
 
-  expected = { a: '1234:0000:0000:0000:0000:0000:0000:0000' };
-  v.check({a: '1234::', b: 2}, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, expected, 'isIP should accept a tail-truncated address for IPv6 addresses');
-  });
-
-  expected = { a: '0000:0000:0000:0000:0000:0000:0000:1234' };
-  v.check({a: '::1234', b: 2}, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, expected, 'isIP should accept a head-truncated address for IPv6 addresses');
-  });
-
-  expected = { a: '0000:0000:0000:0000:0000:0000:0000:0000' };
-  v.check({a: '::', b: 2}, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, expected, 'isIP should accept a nil IPv6 address');
-  });
+  v.check({a: '2001:db8::1:0:0:1', b: 2},
+      shouldEqual(expected, 'isIP should accept a shortened IPv6 address with leading zeros blanked.'));
 
   expected = { a: '0000:0000:0000:0000:0000:0000:7f00:0001' };
-  v.check({a: '::7F00:0001', b: 2}, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, expected, 'isIP should accept an IPv6 address with capital letters');
-  });
 
-  expected = { a: '0000:0000:0000:0000:0000:0000:7f00:0001' };
-  v.check({a: '::127.0.0.1', b: 2}, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, expected, 'isIP should accept an IPv4 address embedded in an IPv6 address');
-  });
+  v.check({a: '::7F00:0001', b: 2},
+      shouldEqual(expected, 'isIP should accept an IPv6 address with capital letters'));
+
+  v.check({a: '::127.0.0.1', b: 2},
+      shouldEqual(expected, 'isIP should accept an embedded IPv4 address'));
+
+  v.check({a: '1234::', b: 2},
+      shouldEqual({a: '1234:0000:0000:0000:0000:0000:0000:0000'},
+        'isIP should accept a tail-truncated address for IPv6 addresses'));
+
+  v.check({a: '::1234', b: 2},
+      shouldEqual({a: '0000:0000:0000:0000:0000:0000:0000:1234'},
+        'isIP should accept a head-truncated address for IPv6 addresses'));
+
+  v.check({a: '::', b: 2},
+      shouldEqual({a: '0000:0000:0000:0000:0000:0000:0000:0000'},
+        'isIP should accept a nil IPv6 address'));
 
   // negative test cases
   v.check({a: 'invalid/'}, invalidIpFailMsg('IP addresses cannot be strings'));
