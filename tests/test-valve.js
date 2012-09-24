@@ -564,123 +564,98 @@ exports['test_validate_isAddressPair'] = function(test, assert) {
 // positive case 2
 };
 
+function invalidIpFailMsgAsserter(assert, msg) {
+  return function(err, cleaned) {
+    assert.deepEqual(err.message, 'Invalid IP', msg);
+  }
+}
+
 exports['test_validate_ip'] = function(test, assert) {
+  var invalidIpFailMsg = invalidIpFailMsgAsserter.bind(null, assert);
   var v = new V({
     a: C().isIP()
   });
 
   // positive test cases
   var expected = { a: '192.168.0.1' };
-  var provided = { a: '192.168.0.1', b: 2 };
-  v.check(provided, function(err, cleaned) {
+  v.check({a: '192.168.0.1', b: 2}, function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, 'isIP should accept dotted-quad syntax for IPv4 addresses');
   });
 
   expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  provided = { a: '2001:0db8:0000:0000:0001:0000:0000:0001', b: 2 };
-  v.check(provided, function(err, cleaned) {
+  v.check({a: '2001:0db8:0000:0000:0001:0000:0000:0001', b: 2}, function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, 'isIP should accept a coloned-octet syntax for IPv6 addresses');
   });
 
   expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  provided = { a: '2001:0db8::0001:0000:0000:0001', b: 2 };
-  v.check(provided, function(err, cleaned) {
+  v.check({a: '2001:0db8::0001:0000:0000:0001', b: 2}, function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, 'isIP should accept a shortened syntax for IPv6 addresses');
   });
 
   expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  provided = { a: '2001:0db8:0000:0000:0001::0001', b: 2 };
-  v.check(provided, function(err, cleaned) {
+  v.check({a: '2001:0db8:0000:0000:0001::0001', b: 2}, function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, 'isIP should accept a shortened syntax for IPv6 addresses');
   });
 
   expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  provided = { a: '2001:db8:0:0:1:0:0:1', b: 2 };
-  v.check(provided, function(err, cleaned) {
+  v.check({a: '2001:db8:0:0:1:0:0:1', b: 2}, function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, 'isIP should accept a coloned-octet syntax with leading zeros blanked for IPv6 addresses');
   });
 
   expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  provided = { a: '2001:db8::1:0:0:1', b: 2 };
-  v.check(provided, function(err, cleaned) {
+  v.check({a: '2001:db8::1:0:0:1', b: 2}, function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, 'isIP should accept a shortened syntax with leading zeros blanked for IPv6 addresses');
   });
 
   expected = { a: '1234:0000:0000:0000:0000:0000:0000:0000' };
-  provided = { a: '1234::', b: 2 };
-  v.check(provided, function(err, cleaned) {
+  v.check({a: '1234::', b: 2}, function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, 'isIP should accept a tail-truncated address for IPv6 addresses');
   });
 
   expected = { a: '0000:0000:0000:0000:0000:0000:0000:1234' };
-  provided = { a: '::1234', b: 2 };
-  v.check(provided, function(err, cleaned) {
+  v.check({a: '::1234', b: 2}, function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, 'isIP should accept a head-truncated address for IPv6 addresses');
   });
 
   expected = { a: '0000:0000:0000:0000:0000:0000:0000:0000' };
-  provided = { a: '::', b: 2 };
-  v.check(provided, function(err, cleaned) {
+  v.check({a: '::', b: 2}, function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, 'isIP should accept a nil IPv6 address');
   });
 
   expected = { a: '0000:0000:0000:0000:0000:0000:7f00:0001' };
-  provided = { a: '::7F00:0001', b: 2 };
-  v.check(provided, function(err, cleaned) {
+  v.check({a: '::7F00:0001', b: 2}, function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, 'isIP should accept an IPv6 address with capital letters');
   });
 
   expected = { a: '0000:0000:0000:0000:0000:0000:7f00:0001' };
-  provided = { a: '::127.0.0.1', b: 2 };
-  v.check(provided, function(err, cleaned) {
+  v.check({a: '::127.0.0.1', b: 2}, function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, 'isIP should accept an IPv4 address embedded in an IPv6 address');
   });
 
   // negative test cases
-  var provided = { a: 'invalid/' };
-  v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'IP test (negative case)');
+  v.check({a: 'invalid/'}, invalidIpFailMsg('IP addresses cannot be strings'));
+  v.check({a: '12345'}, invalidIpFailMsg('IP addresses cannot be single integers'));
+  v.check({a: '2001:0db8::1::1'}, invalidIpFailMsg('IPv6 can only have at most one "::" symbol in it.'));
+  v.check({a: '2001:0db8:0000:0000:0001:0000:0000'}, invalidIpFailMsg('IPv6 coloned-octet notation requires eight hex words.'));
+  v.check({a: '2001:0db8::1:0:0:00001'}, invalidIpFailMsg('IPv6 hex groups can be at most 4 characters long.'));
+
+  v.check({a: {b: null}}, function(err, unused) {
+    assert.deepEqual(err.message, 'IP address is not a string', 'IP addresses cannot be null or JSON objects');
   });
 
-  provided = {a: '12345' };
-  v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'IP test (negative case 2)');
-  });
-
-  provided = {a: {b: null} };
-  v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'IP address is not a string', 'IP test (negative case 3)');
-  });
-
-  provided = {a: '2001:0db8:0:0:1:0:0:127.0.0.1'};
-  v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Incorrect number of groups found', 'Malformed IPv6 address w/ embedded IPv4 address');
-  });
-
-  provided = {a: '2001:0db8::1::1' };
-  v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'IPv6 can only have at most one "::" symbol in it.');
-  });
-
-  provided = {a: '2001:0db8:0000:0000:0001:0000:0000'};
-  v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'IPv6 coloned-octet notation requires eight hex words.');
-  });
-
-  provided = {a: '2001:0db8::1:0:0:00001' };
-  v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'IPv6 hex groups can be at most 4 characters long.');
+  v.check({a: '2001:0db8:0:0:1:0:0:127.0.0.1'}, function(err, unused) {
+   assert.deepEqual(err.message, 'Incorrect number of groups found', 'Malformed IPv6 address w/ embedded IPv4 address');
   });
 
   var stack_attack = "";
@@ -689,22 +664,11 @@ exports['test_validate_ip'] = function(test, assert) {
     stack_attack += possible.charAt(Math.floor(Math.random()*possible.length));
   }
   stack_attack = '1'+stack_attack;	// Make sure it starts with a digit
+  ifFailed = invalidIpFailMsgAsserter.bind(null, assert, 'Stack overflow attacks, to 1MB, should be rejected out of hand.');
 
-  provided = {a: stack_attack};
-  v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'Stack overflow attacks, to 1MB, should be rejected out of hand.');
-  });
-
-  provided = {a: '2001:0db8:0:0:1:0:0:'+stack_attack};
-  v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'Stack overflow attacks, to 1MB, should be rejected out of hand.');
-  });
-
-  provided = {a: '192.168.0.'+stack_attack};
-  v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'Stack overflow attacks, to 1MB, should be rejected out of hand.');
-  });
-
+  v.check({a: stack_attack}, ifFailed);
+  v.check({a: '2001:0db8:0:0:1:0:0:'+stack_attack}, ifFailed);
+  v.check({a: '192.168.0.'+stack_attack}, ifFailed);
   test.finish();
 };
 
