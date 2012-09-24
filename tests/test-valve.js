@@ -650,17 +650,17 @@ exports['test_validate_ip'] = function(test, assert) {
   // negative test cases
   var provided = { a: 'invalid/' };
   v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'IP test (providedative case)');
+    assert.deepEqual(err.message, 'Invalid IP', 'IP test (negative case)');
   });
 
   provided = {a: '12345' };
   v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'IP test (providedative case 2)');
+    assert.deepEqual(err.message, 'Invalid IP', 'IP test (negative case 2)');
   });
 
   provided = {a: {b: null} };
   v.check(provided, function(err, cleaned) {
-    assert.deepEqual(err.message, 'IP address is not a string', 'IP test (providedative case 3)');
+    assert.deepEqual(err.message, 'IP address is not a string', 'IP test (negative case 3)');
   });
 
   provided = {a: '2001:0db8:0:0:1:0:0:127.0.0.1'};
