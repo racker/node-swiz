@@ -22,6 +22,21 @@ var C = swiz.Chain;
 var O = swiz.struct.Obj;
 var F = swiz.struct.Field;
 
+// Useful utilities for oft-repeated inner functions in various checks.
+
+function invalidIpFailMsgAsserter(assert, msg) {
+  return function(err, cleaned) {
+    assert.deepEqual(err.message, 'Invalid IP', msg);
+  }
+}
+
+function equalAsserter(assert, expected, msg) {
+  return function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, expected, msg);
+  }
+}
+
 // Mock set of serialization defs
 var def = [
   O('Node',
@@ -565,47 +580,79 @@ exports['test_validate_isAddressPair'] = function(test, assert) {
 };
 
 exports['test_validate_ip'] = function(test, assert) {
+  var invalidIpFailMsg = invalidIpFailMsgAsserter.bind(null, assert);
+  var shouldEqual = equalAsserter.bind(null, assert);
   var v = new V({
     a: C().isIP()
   });
 
-  // positive case
-  var obj = { a: '192.168.0.1' };
-  var obj_ext = { a: '192.168.0.1', b: 2 };
-  v.check(obj_ext, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, obj, 'IP test');
+  // positive test cases
+  v.check({a: '192.168.0.1', b: 2},
+      shouldEqual({a: '192.168.0.1'}, 'isIP should accept dotted-quad syntax for IPv4 addresses'));
+
+  var expected = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
+
+  v.check({a: '2001:0db8:0000:0000:0001:0000:0000:0001', b: 2},
+      shouldEqual(expected , 'isIP should accept a coloned-octet syntax for IPv6 addresses'));
+
+  v.check({a: '2001:0db8::0001:0000:0000:0001', b: 2},
+      shouldEqual(expected, 'isIP should accept a shortened syntax for IPv6 addresses'));
+
+  v.check({a: '2001:0db8:0000:0000:0001::0001', b: 2},
+      shouldEqual(expected, 'isIP should accept a shortened syntax for IPv6 addresses'));
+
+  v.check({a: '2001:db8:0:0:1:0:0:1', b: 2},
+      shouldEqual(expected, 'isIP should accept a coloned-octet with leading zeros blanked for IPv6 addresses'));
+
+  v.check({a: '2001:db8::1:0:0:1', b: 2},
+      shouldEqual(expected, 'isIP should accept a shortened IPv6 address with leading zeros blanked.'));
+
+  expected = { a: '0000:0000:0000:0000:0000:0000:7f00:0001' };
+
+  v.check({a: '::7F00:0001', b: 2},
+      shouldEqual(expected, 'isIP should accept an IPv6 address with capital letters'));
+
+  v.check({a: '::127.0.0.1', b: 2},
+      shouldEqual(expected, 'isIP should accept an embedded IPv4 address'));
+
+  v.check({a: '1234::', b: 2},
+      shouldEqual({a: '1234:0000:0000:0000:0000:0000:0000:0000'},
+        'isIP should accept a tail-truncated address for IPv6 addresses'));
+
+  v.check({a: '::1234', b: 2},
+      shouldEqual({a: '0000:0000:0000:0000:0000:0000:0000:1234'},
+        'isIP should accept a head-truncated address for IPv6 addresses'));
+
+  v.check({a: '::', b: 2},
+      shouldEqual({a: '0000:0000:0000:0000:0000:0000:0000:0000'},
+        'isIP should accept a nil IPv6 address'));
+
+  // negative test cases
+  v.check({a: 'invalid/'}, invalidIpFailMsg('IP addresses cannot be strings'));
+  v.check({a: '12345'}, invalidIpFailMsg('IP addresses cannot be single integers'));
+  v.check({a: '2001:0db8::1::1'}, invalidIpFailMsg('IPv6 can only have at most one "::" symbol in it.'));
+  v.check({a: '2001:0db8:0000:0000:0001:0000:0000'}, invalidIpFailMsg('IPv6 coloned-octet notation requires eight hex words.'));
+  v.check({a: '2001:0db8::1:0:0:00001'}, invalidIpFailMsg('IPv6 hex groups can be at most 4 characters long.'));
+
+  v.check({a: {b: null}}, function(err, unused) {
+    assert.deepEqual(err.message, 'IP address is not a string', 'IP addresses cannot be null or JSON objects');
   });
 
-  // negative case
-  var neg = { a: 'invalid/' };
-  v.check(neg, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'IP test (negative case)');
+  v.check({a: '2001:0db8:0:0:1:0:0:127.0.0.1'}, function(err, unused) {
+   assert.deepEqual(err.message, 'Incorrect number of groups found', 'Malformed IPv6 address w/ embedded IPv4 address');
   });
 
-  neg = {a: '12345' };
-  v.check(neg, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid IP', 'IP test (negative case 2)');
-  });
+  var stack_attack = "";
+  var possible = "0123456789.:";
+  for(var i=0; i < 1048576; i++) {
+    stack_attack += possible.charAt(Math.floor(Math.random()*possible.length));
+  }
+  stack_attack = '1'+stack_attack;	// Make sure it starts with a digit
+  ifFailed = invalidIpFailMsgAsserter.bind(null, assert, 'Stack overflow attacks, to 1MB, should be rejected out of hand.');
 
-  neg = {a: {b: null} };
-  v.check(neg, function(err, cleaned) {
-    assert.deepEqual(err.message, 'IP address is not a string', 'IP test (negative case 3)');
-  });
-
-  // IPv6 normalization
-  obj = { a: '2001:0db8:0000:0000:0001:0000:0000:0001' };
-  obj_ext = { a: '2001:db8::1:0:0:1'};
-  v.check(obj_ext, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, obj, 'IPv6 test and normalization');
-  });
-
-  // net.isIP would claim this is invalid, despite it being valid ipv6
-  obj = { a: '1234::' };
-  v.check(obj, function(err, cleaned) {
-    assert.ifError(err);
-  });
+  v.check({a: stack_attack}, ifFailed);
+  v.check({a: '2001:0db8:0:0:1:0:0:'+stack_attack}, ifFailed);
+  v.check({a: '192.168.0.'+stack_attack}, ifFailed);
   test.finish();
 };
 
