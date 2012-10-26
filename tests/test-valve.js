@@ -44,6 +44,7 @@ var def = [
       'fields': [
         F('id', {'src': 'hash_id', 'desc': 'hash ID for the node', 'attribute': true,
                  'val' : C().isString()}),
+        F('label' , {'src' : 'name', 'val' : C().isString().optional()}),
         F('is_active', {'src': 'active', 'desc': 'is the node active?',
                         'val' : C().toBoolean(), 'coerceTo' : 'boolean'}),
         F('name', {'src' : 'get_name', 'desc' : 'name', 'attribute': true,
@@ -1011,9 +1012,9 @@ exports['test_validate_badregex'] = function(test, assert) {
     var v = new V({
       a: C().regex(badValues[i])
     });
-  
+
     var obj = { a: 'sd@#$34f' };
-    
+
     try {
       v.check(obj, function(err, cleaned) {});
     } catch (x) {
@@ -1023,7 +1024,7 @@ exports['test_validate_badregex'] = function(test, assert) {
   }
 
   assert.equal(throwExceptions, badValues.length, 'badregex test');
-  
+
   test.finish();
 };
 
@@ -2341,7 +2342,7 @@ exports['test_V1UUID'] = function(test, assert) {
   var v = new V({
     a: new C().isV1UUID()
   });
-  
+
   async.series([
     function(callback) {
       // positive case
@@ -2351,7 +2352,7 @@ exports['test_V1UUID'] = function(test, assert) {
         assert.deepEqual(cleaned, pos, 'isV1UUID test');
         callback();
       });
-      
+
     },
 
     function(callback) {
@@ -2371,7 +2372,7 @@ exports['test_V1UUID'] = function(test, assert) {
         callback();
       });
     },
-    
+
     function(callback) {
       //negative case 2
       var neg2 = { a : '4b299c10-ab5a-11e1-4f6f-1c8b12469d15' };
@@ -2390,10 +2391,10 @@ exports['test_V1UUID'] = function(test, assert) {
       });
     }
   ],
- 
+
   function(err) {
     test.finish();
-  });  
+  });
 };
 
 exports['test_getValidatorPos_hasValidator_and_getValidatorAtPos'] = function(test, assert) {
@@ -2447,4 +2448,65 @@ exports['test_optional_string'] = function(test, assert) {
   function(err) {
      test.finish();
   });
+};
+
+
+exports['test_non_optional_and_optional_with_src_field_attribute'] = function(test, assert) {
+  var validity = swiz.defToValve(def),
+      v = new V(validity.Node), node1, node2, node3;
+
+  node1 = {
+    'is_active' : true,
+    'name' : 'exmample',
+    'agent_name' : 'your mom',
+    'ipaddress' : '42.24.42.24'
+  };
+
+  node2 = {
+    'hash_id' : 'xkCD366',
+    'is_active' : true,
+    'name' : 'exmample',
+    'agent_name' : 'your mom',
+    'ipaddress' : '42.24.42.24'
+  }
+
+  node3 = {
+    'id' : 'xkCD366',
+    'label' : 'node3',
+    'is_active' : true,
+    'name' : 'exmample',
+    'agent_name' : 'your mom',
+    'ipaddress' : '42.24.42.24'
+  }
+
+  async.series([
+    function test1(callback) {
+      v.check(node1, function(err, cleaned) {
+        assert.ok(err)
+        assert.equal(err.message, 'Missing required key (id)');
+        callback();
+      });
+    },
+
+    function test2(callback) {
+      v.check(node2, function(err, cleaned) {
+        assert.ok(err)
+        assert.equal(err.message, 'Missing required key (id)');
+        callback();
+      });
+    },
+
+    function test2(callback) {
+      v.check(node3, function(err, cleaned) {
+        assert.ifError(err);
+        assert.equal(cleaned.name, 'node3');
+        callback();
+      });
+    }
+  ],
+
+  function(err) {
+    assert.ifError(err);
+    test.finish();
+  })
 };
