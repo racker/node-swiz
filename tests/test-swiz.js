@@ -277,6 +277,31 @@ exports['test_build_object'] = function(test, assert) {
   });
 };
 
+exports['test_build_object_sync'] = function(test, assert) {
+  var blahnode = new Node();
+  var sw = new swiz.Swiz(def);
+  var result = sw.buildObjectSync(blahnode);
+
+  assert.equal(result.id, 15245);
+  assert.equal(result.is_active, true);
+  // don't expect get_name to be set, functions will not be called in buildObjectSync
+  assert.equal(result.agent_name, 'gl<ah');
+  // don't expect ip_address to be set either
+  assert.deepEqual(result.public_ips, ['123.45.55.44', '122.123.32.2']);
+  assert.deepEqual(result.data, {
+    foo: 'thingone',
+    bar: 'thingtwo'
+  });
+  assert.equal(result.state, 'active');
+  assert.deepEqual(result.opts, {
+    option1: 'defaultval',
+    option2: 'defaultval',
+    // do not expect a function to be called to return a value
+    option3: undefined
+  });
+  test.finish();
+};
+
 exports['test_deserialize_text_only_entities'] = function(test, assert) {
   var xml = '<accounting><entities>2</entities><serializerType>accounting</serializerType></accounting>';
   var sw = new swiz.Swiz(def, {stripNulls: true});
