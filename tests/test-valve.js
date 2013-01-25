@@ -610,6 +610,14 @@ exports['test_isAllowedFQDNOrIP'] = function(test, assert) {
         assert.ok(err);
         callback();
       });
+    },
+
+    function neg8(callback) {
+      var neg = { a: 'foo.test' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
     }
   ],
 
