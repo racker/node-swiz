@@ -508,6 +508,124 @@ exports['test_isHostnameOrIp'] = function(test, assert) {
   });
 };
 
+exports['test_isAllowedFQDNOrIP'] = function(test, assert) {
+  var v = new V({
+    a: C().isAllowedFQDNOrIP(['not-allowed.com', 'not-allowed.org'])
+  });
+
+  async.series([
+    function pos1(callback) {
+      var obj = { 'a': '127.0.0.1' };
+      v.check(obj, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos2(callback) {
+      var obj = { 'a': '2001:0db8:0000:0000:0001:0000:0000:0001' };
+      v.check(obj, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos4(callback) {
+      var obj = { 'a': 'github.com' };
+      v.check(obj, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos5(callback) {
+      // not-allowed.net _is_ allowed
+      var obj = { 'a': 'not-allowed.net' };
+      v.check(obj, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos6(callback) {
+      // this-is-not-allowed.com is also allowed
+      var obj = { 'a': 'not-allowed.net' };
+      v.check(obj, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function neg1(callback) {
+      var neg = { a: 'hostname.' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg2(callback) {
+      var neg = { a: 'hostname' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg3(callback) {
+      var neg = { a: 'not-allowed.com' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg4(callback) {
+      var neg = { a: 'not-allowed.org' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg5(callback) {
+      var neg = { a: 'foo.not-allowed.org' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg6(callback) {
+      var neg = { a: 'example.org' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg7(callback) {
+      var neg = { a: 'foo.example.org' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg8(callback) {
+      var neg = { a: 'foo.test' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    }
+  ],
+
+  function(err) {
+    test.finish();
+  });
+};
+
 exports['test_validate_ipv4'] = function(test, assert) {
   var v = new V({
     a: C().isIPv4()
