@@ -814,7 +814,6 @@ exports['test_validate_ip_blacklist'] = function(test, assert) {
 
 
 exports['test_validate_large_hash_of_ip_addresses'] = function(test, assert) {
-  console.log("***LARGE HASH");
   var v = new V({
     a: C().isHash(C().isString().len(1, 64),
                 C().isIP()).numItems(0, 64)
