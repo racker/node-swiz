@@ -813,38 +813,6 @@ exports['test_validate_ip_blacklist'] = function(test, assert) {
 };
 
 
-exports['test_validate_large_hash_of_ip_addresses'] = function(test, assert) {
-  var v = new V({
-    a: C().isHash(C().isString().len(1, 64),
-                C().isIP()).numItems(0, 64)
-  }),
-  obj = {
-    a: {}
-  };
-
-  function generateRandomIP() {
-    var quads = [
-      Math.floor(Math.random() * 250 + 1),
-      Math.floor(Math.random() * 250 + 1),
-      Math.floor(Math.random() * 250 + 1),
-      Math.floor(Math.random() * 250 + 1)
-    ];
-    return quads.join('.');
-  }
-
-  for (var i = 0; i < 500; i++) {
-    obj.a['ip' + i] = generateRandomIP();
-  }
-
-  v.check(obj, function(err, cleaned) {
-    assert.ifError(err);
-    assert.deepEqual(cleaned, obj);
-  });
-
-  test.finish();
-};
-
-
 exports['test_validate_cidr'] = function(test, assert) {
   var v = new V({
     a: C().isCIDR()
@@ -1896,6 +1864,28 @@ exports['test_validate_nested_hash'] = function(test, assert) {
   var neg = { a: { 'test' : 123 } };
   v.check(neg, function(err, cleaned) {
     assert.deepEqual(err.message, "Value for key 'test': Not a string", 'hash test (negative case)');
+  });
+
+  test.finish();
+};
+
+
+exports['test_validate_large_hash'] = function(test, assert) {
+  var v = new V({
+    a: C().isHash(C().isString().len(1, 64),
+                C().isString().len(1, 64))
+  }),
+  obj = {
+    a: {}
+  };
+
+  for (var i = 0; i < 500; i++) {
+    obj.a['ip' + i] = 'just a random test string';
+  }
+
+  v.check(obj, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj);
   });
 
   test.finish();
