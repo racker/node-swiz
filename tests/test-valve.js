@@ -1870,6 +1870,28 @@ exports['test_validate_nested_hash'] = function(test, assert) {
 };
 
 
+exports['test_validate_large_hash'] = function(test, assert) {
+  var v = new V({
+    a: C().isHash(C().isString().len(1, 64),
+                C().isString().len(1, 64))
+  }),
+  obj = {
+    a: {}
+  };
+
+  for (var i = 0; i < 500; i++) {
+    obj.a['ip' + i] = 'just a random test string';
+  }
+
+  v.check(obj, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj);
+  });
+
+  test.finish();
+};
+
+
 exports['test_validate_enum'] = function(test, assert) {
   var v = new V({
         a: C().enumerated({inactive: 0, active: 1, full_no_new_checks: 2}).optional()
