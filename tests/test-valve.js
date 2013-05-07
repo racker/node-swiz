@@ -124,7 +124,7 @@ var badExampleNode1 = {
 
 
 exports['test_validate_numItems'] = function(test, assert) {
-  var v1, v2, v3;
+  var v1, v2, v3, thrown = false;
 
   v1 = new V({
     a: C().isArray(C().isInt()).numItems(1, 5)
@@ -137,6 +137,20 @@ exports['test_validate_numItems'] = function(test, assert) {
   v3 = new V({
     a: C().isArray(C().isInt()).numItems(2)
   });
+
+  try {
+    new V({
+      a: C().isArray(C().isInt()).numItems(2).numItems(2)
+    });
+  }
+  catch (e) {
+    thrown = true;
+    assert.match(e.message, /single numItems validator/i);
+  }
+
+  if (!thrown) {
+    assert.fail('numItems added multiple times, but exception wasnt thrown');
+  }
 
   // Negative test cases (array)
   v1.check({'a': [1]}, function(err, cleaned) {
