@@ -440,6 +440,15 @@ exports['test_validate_hostname'] = function(test, assert) {
   // positive case
   var obj1 = { a: 'foo1-bar-2-ck.com' };
   var obj2 = { a: 'rackspace.com' };
+  //negative case
+  var nobj1 = { a: 'hostname.' };
+  var nobj2 = { a: '-hostname.com' };
+  var nobj3 = { a: 'www.labels-should-not-be-longer-than-63-characters-this-one-is-64-ch.ars-long.fail' };
+  var nobj4 = { a: 'hostnames-should-also-never-be-longer.than-255-chars.even-if.each-one-of-their-labels' +
+                    '-is.shorter-than-64-chars.this-is-going-to-be-a-long-long-string.so-long-that-it-may' +
+                    'be-longer-than-the-golden-gate-bridge.let-me-count-this-again-to-make.sure.it-is256.yay' };
+  var nobj5 = { a: ''};
+  var nobj6 = { a: 'www..example.com'};
 
   async.series([
     function pos1(callback) {
@@ -457,16 +466,42 @@ exports['test_validate_hostname'] = function(test, assert) {
     },
 
     function neg1(callback) {
-      var neg = { a: 'hostname.' };
-      v.check(neg, function(err, cleaned) {
+      v.check(nobj1, function(err, cleaned) {
         assert.ok(err);
         callback();
       });
     },
 
     function neg2(callback) {
-      var neg = { a: 'hostname.' };
-      v.check(neg, function(err, cleaned) {
+      v.check(nobj2, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg3(callback) {
+      v.check(nobj3, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg4(callback) {
+      v.check(nobj4, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg5(callback) {
+      v.check(nobj5, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg6(callback) {
+      v.check(nobj6, function(err, cleaned) {
         assert.ok(err);
         callback();
       });
