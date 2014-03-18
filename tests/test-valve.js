@@ -122,6 +122,15 @@ var badExampleNode1 = {
   'ipaddress' : '42.24.42.24'
 };
 
+var badexampleNode2 = {
+  'id' : 'xkCD366',
+  'is_active' : true,
+  'name' : 'exmample',
+  'agent_name' : 'your mom',
+  'ipaddress' : '42.24.42.24',
+  'something_else': 'is there'
+};
+
 
 exports['test_validate_numItems'] = function(test, assert) {
   var v1, v2, v3, thrown = false;
@@ -2341,7 +2350,7 @@ exports['test_schema_translation_1'] = function(test, assert) {
     v.check(badExampleNode, function(err, cleaned) {
 
       assert.deepEqual(err.message, 'Invalid IP',
-        'schama translation failure');
+        'schema translation failure');
       test.finish();
     });
   });
@@ -2355,7 +2364,7 @@ exports['test_schema_translation_2'] = function(test, assert) {
 
   v.check(badExampleNode1, function(err, cleaned) {
     assert.deepEqual(err.message, 'Missing required key (agent_name)',
-      'schama translation failure (missing agent_key)');
+      'schema translation failure (missing agent_key)');
     test.finish();
   });
 };
@@ -2376,7 +2385,6 @@ exports['test_roundtrip_json_swiz_valve'] = function(test, assert) {
   var validity = swiz.defToValve(def),
       v = new V(validity.Node),
       obj, sw = new swiz.Swiz(def);
-
   v.check(exampleNode, function(err, cleaned) {
     assert.ifError(err);
     obj = cleaned;
@@ -2388,6 +2396,31 @@ exports['test_roundtrip_json_swiz_valve'] = function(test, assert) {
           assert.deepEqual(newObj, exampleNode, 'Round trip json swiz/valve test');
           assert.ifError(err);
           test.finish();
+        });
+    });
+  });
+};
+
+
+exports['test_roundtrip_json_swiz_valve_with_erroneous_field'] = function(test, assert) {
+  var validity = swiz.defToValve(def),
+      v = new V(validity.Node),
+      obj, sw = new swiz.Swiz(def);
+  v.check(badexampleNode2, function(err, cleaned) {
+    assert.ifError(err);
+    obj = cleaned;
+    obj.getSerializerType = function() {return 'Node';};
+    sw.serialize(swiz.SERIALIZATION.SERIALIZATION_JSON, 1, obj,
+      function(err, results) {
+        assert.ifError(err);
+        sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_JSON, 1, results, function(err, newObj) {
+          assert.ifError(err);
+          sw.serialize(swiz.SERIALIZATION.SERIALIZATION_JSON, 1, newObj, function(err, newResult) {
+            assert.deepEqual(results, newResult, 'Round trip json swiz/valve test with erroneous field');
+            assert.notEqual(newObj, badexampleNode2, 'Round trip json swiz/valve test with erroneous field');
+            assert.ifError(err);
+            test.finish();
+          });
         });
     });
   });
