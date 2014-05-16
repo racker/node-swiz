@@ -302,6 +302,15 @@ exports['test_build_object_sync'] = function(test, assert) {
   test.finish();
 };
 
+exports['test_deserialize_empty_elements'] = function(test, assert) {
+  var xml = '<accounting><entities></entities><serializerType>accounting</serializerType></accounting>';
+  var sw = new swiz.Swiz(def, {stripNulls: false});
+  var obj = sw.deserializeXml(xml);
+  assert.strictEqual(obj.entities, null);
+  assert.strictEqual(sw.deserializeXml(sw.serializeXml(obj)).entities, null);
+  test.finish();
+};
+
 exports['test_deserialize_text_only_entities'] = function(test, assert) {
   var xml = '<accounting><entities>2</entities><serializerType>accounting</serializerType></accounting>';
   var sw = new swiz.Swiz(def, {stripNulls: true});
