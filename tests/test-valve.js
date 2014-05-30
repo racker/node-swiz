@@ -388,6 +388,10 @@ exports['test_validate_url'] = function(test, assert) {
     a: C().isUrl()
   });
 
+  var vRequireProtocol = new V({
+    a: C().isUrl({require_protocol: true})
+  });
+
   // positive case
   var obj = { a: 'http://www.cloudkick.com' };
   var obj_ext = { a: 'http://www.cloudkick.com', b: 2 };
@@ -401,6 +405,21 @@ exports['test_validate_url'] = function(test, assert) {
   v.check(neg, function(err, cleaned) {
     assert.deepEqual(err.message, 'Invalid URL', 'URL test (negative case)');
   });
+
+
+  // positive require protocol case
+  vRequireProtocol.check(obj_ext, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj, 'URL test with required protocol');
+  });
+
+
+  // negative rquire protocol case
+  neg = { a: 'www.cloudkick.com' };
+  vRequireProtocol.check(neg, function(err, cleaned) {
+    assert.deepEqual(err.message, 'Invalid URL', 'URL test with required protocol (negative case)');
+  });
+
   test.finish();
 };
 
