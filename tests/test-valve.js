@@ -1919,6 +1919,34 @@ exports['test_validate_nested_hash'] = function(test, assert) {
 };
 
 
+exports['test_validate_null_hash'] = function(test, assert) {
+  var v = new V({
+    a: C().isHash(C().isString(), C().isString())
+  });
+
+  //partial validation, should succeed
+  var obj = null;
+  v.checkPartial(obj, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, {});
+  });
+
+  //loose mode - swiz should complain because 'a' is missing
+  var obj = null;
+  v.check(obj, function(err, cleaned) {
+    assert.deepEqual(err.message, "Missing required key (a)");
+  });
+
+  //strict mode - swiz should complain because 'a' is missing
+  var obj = null;
+  v.check(obj, {strict: true}, function(err, cleaned) {
+    assert.deepEqual(err.message, "Missing required key (a)");
+  });
+
+  test.finish();
+};
+
+
 exports['test_validate_enum'] = function(test, assert) {
   var v = new V({
         a: C().enumerated({inactive: 0, active: 1, full_no_new_checks: 2}).optional()
