@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "async": "0.1.18",
-    "validator": "3.5.0",
+    "validator": "3.19.0",
     "ipv6": "2.0.2",
     "elementtree": "0.1.6",
     "sprintf": "0.1.1"
