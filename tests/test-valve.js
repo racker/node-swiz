@@ -440,6 +440,9 @@ exports['test_validate_hostname'] = function(test, assert) {
   // positive case
   var obj1 = { a: 'foo1-bar-2-ck.com' };
   var obj2 = { a: 'rackspace.com' };
+  var obj3 = { a: 'www.osakeäly.fi' };
+  var obj4 = { a: 'xn--kxae4bafwg.xn--pxaix.gr' };
+
   //negative case
   var nobj1 = { a: 'hostname.' };
   var nobj2 = { a: '-hostname.com' };
@@ -449,6 +452,7 @@ exports['test_validate_hostname'] = function(test, assert) {
                     'be-longer-than-the-golden-gate-bridge.let-me-count-this-again-to-make.sure.it-is256.yay' };
   var nobj5 = { a: ''};
   var nobj6 = { a: 'www..example.com'};
+  var nobj7 = { a: 'ಠ_ಠ.net' };
 
   async.series([
     function pos1(callback) {
@@ -460,6 +464,20 @@ exports['test_validate_hostname'] = function(test, assert) {
 
     function pos2(callback) {
       v.check(obj2, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos3(callback) {
+      v.check(obj3, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos4(callback) {
+      v.check(obj4, function(err, cleaned) {
         assert.ifError(err);
         callback();
       });
@@ -502,6 +520,13 @@ exports['test_validate_hostname'] = function(test, assert) {
 
     function neg6(callback) {
       v.check(nobj6, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg7(callback) {
+      v.check(nobj7, function(err, cleaned) {
         assert.ok(err);
         callback();
       });
