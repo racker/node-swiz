@@ -440,6 +440,9 @@ exports['test_validate_hostname'] = function(test, assert) {
   // positive case
   var obj1 = { a: 'foo1-bar-2-ck.com' };
   var obj2 = { a: 'rackspace.com' };
+  var obj3 = { a: 'www.osakeäly.fi' };
+  var obj4 = { a: 'xn--kxae4bafwg.xn--pxaix.gr' };
+
   //negative case
   var nobj1 = { a: 'hostname.' };
   var nobj2 = { a: '-hostname.com' };
@@ -460,6 +463,20 @@ exports['test_validate_hostname'] = function(test, assert) {
 
     function pos2(callback) {
       v.check(obj2, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos3(callback) {
+      v.check(obj3, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos4(callback) {
+      v.check(obj4, function(err, cleaned) {
         assert.ifError(err);
         callback();
       });
