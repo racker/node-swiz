@@ -8,11 +8,12 @@
     "Paul Querna <pquerna@apache.org>",
     "Tomaz Muraus <tomaz.muraus@rackspace.com>",
     "Gary Dusbabek <gdusbabek@gmail.com>",
-    "Phoebe Simon <phoebe.simon@rackspace.com>"
+    "Phoebe Simon <phoebe.simon@rackspace.com>",
+    "Justin Gallardo <justin.gallardo@rackspace.com>"
   ],
   "name": "swiz",
   "description": "Serialization and Validation Framework for objects in RESTful APIs",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "homepage": "https://github.com/racker/node-swiz",
   "repository": {
     "type": "git",
