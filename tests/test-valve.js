@@ -442,6 +442,7 @@ exports['test_validate_hostname'] = function(test, assert) {
   var obj2 = { a: 'rackspace.com' };
   var obj3 = { a: 'www.osakeäly.fi' };
   var obj4 = { a: 'xn--kxae4bafwg.xn--pxaix.gr' };
+  var obj5 = { a: 'localhost' };
 
   //negative case
   var nobj1 = { a: 'hostname.' };
@@ -478,6 +479,13 @@ exports['test_validate_hostname'] = function(test, assert) {
 
     function pos4(callback) {
       v.check(obj4, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos5(callback) {
+      v.check(obj5, function(err, cleaned) {
         assert.ifError(err);
         callback();
       });
@@ -562,6 +570,14 @@ exports['test_isHostnameOrIp'] = function(test, assert) {
 
     function pos4(callback) {
       var obj = { 'a': 'github.com' };
+      v.check(obj, function(err, cleaned) {
+        assert.ifError(err);
+        callback();
+      });
+    },
+
+    function pos5(callback) {
+      var obj = { 'a': 'localhost' };
       v.check(obj, function(err, cleaned) {
         assert.ifError(err);
         callback();
@@ -688,6 +704,14 @@ exports['test_isAllowedFQDNOrIP'] = function(test, assert) {
 
     function neg8(callback) {
       var neg = { a: 'foo.test' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg9(callback) {
+      var neg = { a: 'localhost' };
       v.check(neg, function(err, cleaned) {
         assert.ok(err);
         callback();
