@@ -396,10 +396,57 @@ exports['test_validate_url'] = function(test, assert) {
     assert.deepEqual(cleaned, obj, 'URL test');
   });
 
+  // ftp test
+  var ftp_url = { a: "ftp://rackspace.com" };
+  v.check(ftp_url, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, ftp_url, 'FTP URL test');
+  });
+
+  // no protocol test
+  var no_proto = { a: "rackspace.com" };
+  v.check(no_proto, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, no_proto, "URL test with no protocol specified");
+  });
+
   // negative case
   var neg = { a: 'invalid/' };
   v.check(neg, function(err, cleaned) {
     assert.deepEqual(err.message, 'Invalid URL', 'URL test (negative case)');
+  });
+  test.finish();
+};
+
+exports['test_validate_http_url'] = function(test, assert) {
+  var v = new V({
+    a: C().isHttpUrl()
+  });
+
+  // positive case
+  var obj = { a: 'http://www.cloudkick.com' };
+  var obj_ext = { a: 'http://www.cloudkick.com', b: 2 };
+  v.check(obj_ext, function(err, cleaned) {
+    assert.ifError(err);
+    assert.deepEqual(cleaned, obj, 'URL test');
+  });
+
+  // ftp test
+  var ftp_url = { a: 'ftp://rackspace.com' };
+  v.check(ftp_url, function(err, cleaned) {
+    assert.deepEqual(err.message, 'Invalid URL', 'HTTP URL test with FTP URL');
+  });
+
+  // no protocol test
+  var no_proto = { a: 'rackspace.com' };
+  v.check(no_proto, function(err, cleaned) {
+    assert.deepEqual(err.message, 'Invalid URL', 'HTTP URL test with no protocol specified');
+  });
+
+  // negative case
+  var neg = { a: 'invalid/' };
+  v.check(neg, function(err, cleaned) {
+    assert.deepEqual(err.message, 'Invalid URL', 'HTTP URL test (negative case)');
   });
   test.finish();
 };
