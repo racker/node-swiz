@@ -2688,6 +2688,65 @@ exports['test_V1UUID'] = function(test, assert) {
   });
 };
 
+exports['test_V4UUID'] = function(test, assert) {
+  var v = new V({
+    a: new C().isV4UUID()
+  });
+
+  async.series([
+    function(callback) {
+      // positive case
+      var pos = { a: '4b299c10-ab5a-41e1-9f6f-1c8b12469d15' };
+      v.check(pos, function(err, cleaned) {
+        assert.ifError(err);
+        assert.deepEqual(cleaned, pos, 'isV4UUID test');
+        callback();
+      });
+
+    },
+
+    function(callback) {
+      // negative case 0
+      var neg0 = { a: 'b299c10-ab5a-11e1-9f6f-1c8b12469d15' };
+      v.check(neg0, function(err, cleaned) {
+        assert.deepEqual(err.message, "Invalid UUID", 'isV4UUID test');
+        callback();
+      });
+    },
+
+    function(callback) {
+      // negative case 1
+      var neg1 = { a: '4@299c10-ab5a-11e1-9f6f-1c8b12469d15' };
+      v.check(neg1, function(err, cleaned) {
+        assert.deepEqual(err.message, "Invalid UUID", 'isV4UUID test');
+        callback();
+      });
+    },
+
+    function(callback) {
+      //negative case 2
+      var neg2 = { a : '4b299c10-ab5a-11e1-4f6f-1c8b12469d15' };
+      v.check(neg2, function(err, cleaned) {
+        assert.deepEqual(err.message, "Unsupported UUID variant", 'isV4UUID test');
+        callback();
+      });
+    },
+
+    function(callback) {
+      //negative case 3
+      var neg3 = { a : '4b299c10-ab5a-21e1-9f6f-1c8b12469d15' };
+      v.check(neg3, function(err, cleaned) {
+        assert.deepEqual(err.message, "UUID is not version 4", 'isV4UUID test');
+        callback();
+      });
+    }
+  ],
+
+  function(err) {
+    test.finish();
+  });
+};
+
 exports['test_getValidatorPos_hasValidator_and_getValidatorAtPos'] = function(test, assert) {
   var v = new V({
     a: C().len(1).isNumeric(),
