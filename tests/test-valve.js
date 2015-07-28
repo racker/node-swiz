@@ -434,13 +434,13 @@ exports['test_validate_http_url'] = function(test, assert) {
   // ftp test
   var ftp_url = { a: 'ftp://rackspace.com' };
   v.check(ftp_url, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid URL', 'HTTP URL test with FTP URL');
+    assert.deepEqual(err.message, 'Invalid URL.  URL must begin with http:// or https://.', 'HTTP URL test with FTP URL');
   });
 
   // no protocol test
   var no_proto = { a: 'rackspace.com' };
   v.check(no_proto, function(err, cleaned) {
-    assert.deepEqual(err.message, 'Invalid URL', 'HTTP URL test with no protocol specified');
+    assert.deepEqual(err.message, 'Invalid URL.  URL must begin with http:// or https://.', 'HTTP URL test with no protocol specified');
   });
 
   // negative case
