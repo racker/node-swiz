@@ -27,14 +27,14 @@ var F = swiz.struct.Field;
 function invalidIpFailMsgAsserter(assert, msg) {
   return function(err, cleaned) {
     assert.deepEqual(err.message, 'Invalid IP', msg);
-  }
+  };
 }
 
 function equalAsserter(assert, expected, msg) {
   return function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, msg);
-  }
+  };
 }
 
 // Mock set of serialization defs
@@ -929,7 +929,7 @@ exports['test_validate_ip'] = function(test, assert) {
   });
 
   v.check({a: '2001:0db8:0:0:1:0:0:127.0.0.1'}, function(err, unused) {
-   assert.deepEqual(err.message, 'Incorrect number of groups found', 'Malformed IPv6 address w/ embedded IPv4 address');
+   assert.deepEqual(err.message, 'Invalid IP', 'Malformed IPv6 address w/ embedded IPv4 address');
   });
 
   var stack_attack = "";

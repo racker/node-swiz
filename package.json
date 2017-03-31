@@ -27,12 +27,12 @@
     "test": "./scripts/tests.sh"
   },
   "engines": {
-    "node": ">= 0.4.0"
+    "node": ">= 0.10.0"
   },
   "dependencies": {
     "async": "0.1.18",
     "validator": "3.41.1",
-    "ipv6": "2.0.2",
+    "ip-address": "5.8.6",
     "elementtree": "0.1.6",
     "sprintf": "0.1.1"
   },
