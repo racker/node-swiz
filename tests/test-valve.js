@@ -27,14 +27,14 @@ var F = swiz.struct.Field;
 function invalidIpFailMsgAsserter(assert, msg) {
   return function(err, cleaned) {
     assert.deepEqual(err.message, 'Invalid IP', msg);
-  }
+  };
 }
 
 function equalAsserter(assert, expected, msg) {
   return function(err, cleaned) {
     assert.ifError(err);
     assert.deepEqual(cleaned, expected, msg);
-  }
+  };
 }
 
 // Mock set of serialization defs
@@ -763,6 +763,22 @@ exports['test_isAllowedFQDNOrIP'] = function(test, assert) {
         assert.ok(err);
         callback();
       });
+    },
+
+    function neg10(callback) {
+      var neg = { a: '\t192.168.0.1' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
+    },
+
+    function neg11(callback) {
+      var neg = { a: '\tlocalhost' };
+      v.check(neg, function(err, cleaned) {
+        assert.ok(err);
+        callback();
+      });
     }
   ],
 
@@ -790,9 +806,14 @@ exports['test_validate_ipv4'] = function(test, assert) {
     assert.deepEqual(err.message, 'Invalid IPv4', 'IPv4 test (negative case)');
   });
 
-  neg = {a: '12345' };
+  neg = { a: '12345' };
   v.check(neg, function(err, cleaned) {
     assert.deepEqual(err.message, 'Invalid IPv4', 'IPv4 test (negative case 2)');
+  });
+
+  neg = { a: '\t192.168.0.1' };
+  v.check(neg, function(err, cleaned) {
+    assert.deepEqual(err.message, 'Invalid IPv4', 'IPv4 test (negative case 3)');
   });
 
   test.finish();
@@ -836,6 +857,11 @@ exports['test_validate_isAddressPair'] = function(test, assert) {
   obj_ext = { a: '127.0.0.1:444444' };
   v.check(obj_ext, function(err, cleaned) {
     assert.match(err.message, /Port in the address pair is out of range/);
+  });
+
+  obj_ext = { a: '\t0000:0000:0000:0000:0000:0000:0000:0001:22222' };
+  v.check(obj_ext, function(err, cleaned) {
+    assert.match(err.message, /IP address in the address pair is not valid/);
   });
 
   test.finish();
@@ -903,7 +929,7 @@ exports['test_validate_ip'] = function(test, assert) {
   });
 
   v.check({a: '2001:0db8:0:0:1:0:0:127.0.0.1'}, function(err, unused) {
-   assert.deepEqual(err.message, 'Incorrect number of groups found', 'Malformed IPv6 address w/ embedded IPv4 address');
+   assert.deepEqual(err.message, 'Invalid IP', 'Malformed IPv6 address w/ embedded IPv4 address');
   });
 
   var stack_attack = "";
