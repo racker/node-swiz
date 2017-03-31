@@ -85,7 +85,7 @@ var def = [
 var exampleNode = {
   'id' : 'xkCD366',
   'is_active' : true,
-  'name' : 'exmample',
+  'name' : 'example',
   'agent_name' : 'your mom',
   'ipaddress' : '42.24.42.24'
 };
@@ -93,7 +93,7 @@ var exampleNode = {
 var exampleNode2 = {
   'id' : 'xkCD366',
   'is_active' : true,
-  'name' : 'exmample',
+  'name' : 'example',
   'agent_name' : 'your mom',
   'state': 'active',
   'ipaddress' : '42.24.42.24'
@@ -102,7 +102,7 @@ var exampleNode2 = {
 var compNode = {
   'hash_id' : 'xkCD366',
   'active' : true,
-  'get_name' : 'exmample',
+  'get_name' : 'example',
   'agent_name' : 'your mom',
   'get_public_address' : '42.24.42.24'
 };
@@ -110,7 +110,7 @@ var compNode = {
 var badExampleNode = {
   'id' : 'xkCD366',
   'is_active' : true,
-  'name' : 'exmample',
+  'name' : 'example',
   'agent_name' : 'your mom',
   'ipaddress' : '42'
 };
@@ -118,8 +118,17 @@ var badExampleNode = {
 var badExampleNode1 = {
   'id' : 'xkCD366',
   'is_active' : true,
-  'name' : 'exmample',
+  'name' : 'example',
   'ipaddress' : '42.24.42.24'
+};
+
+var badExampleNode2 = {
+  'id' : 'xkCD366',
+  'is_active' : true,
+  'name' : 'example',
+  'agent_name' : 'your mom',
+  'ipaddress' : '42.24.42.24',
+  'some_else': 'is there'
 };
 
 
@@ -2526,7 +2535,6 @@ exports['test_roundtrip_json_swiz_valve'] = function(test, assert) {
   var validity = swiz.defToValve(def),
       v = new V(validity.Node),
       obj, sw = new swiz.Swiz(def);
-
   v.check(exampleNode, function(err, cleaned) {
     assert.ifError(err);
     obj = cleaned;
@@ -2538,6 +2546,36 @@ exports['test_roundtrip_json_swiz_valve'] = function(test, assert) {
           assert.deepEqual(newObj, exampleNode, 'Round trip json swiz/valve test');
           assert.ifError(err);
           test.finish();
+        });
+    });
+  });
+};
+
+
+exports['test_roundtrip_json_swiz_valve_with_extra_field'] = function(test, assert) {
+  var validity = swiz.defToValve(def),
+      v = new V(validity.Node),
+      obj, sw = new swiz.Swiz(def);
+  console.log('example', badExampleNode2);
+  v.check(badExampleNode2, function(err, cleaned) {
+    assert.ifError(err);
+    obj = cleaned;
+    console.log('obj', obj);
+    obj.getSerializerType = function() {return 'Node';};
+    sw.serialize(swiz.SERIALIZATION.SERIALIZATION_JSON, 1, obj,
+      function(err, results) {
+        console.log('res', results);
+        assert.ifError(err);
+        sw.deserialize(swiz.SERIALIZATION.SERIALIZATION_JSON, 1, results, function(err, newObj) {
+          console.log('newobj', newObj);
+          assert.ifError(err);
+          sw.serialize(swiz.SERIALIZATION.SERIALIZATION_JSON, 1, newObj, function(err, newResult) {
+          console.log('newResult', newResult);
+          assert.deepEqual(results, newResult, 'Round trip json swiz/valve test with errorneous field');
+          assert.notDeepEqual(newObj, badExampleNode2, 'Round trip json swiz/valve test with errorneous field');
+          assert.ifError(err);
+          test.finish();
+        });
         });
     });
   });
@@ -2572,7 +2610,7 @@ exports['test_xml_with_whitespace'] = function(test, assert) {
       testxml,
       obj, sw = new swiz.Swiz(def);
 
-  testxml = sw.deserializeXml('<?xml version="1.0" encoding="utf-8"?><node id="xkCD366" name="exmample"> <is_active>true</is_active><agent_name>your mom</agent_name><ipaddress>42.24.42.24</ipaddress></node>');
+  testxml = sw.deserializeXml('<?xml version="1.0" encoding="utf-8"?><node id="xkCD366" name="example"> <is_active>true</is_active><agent_name>your mom</agent_name><ipaddress>42.24.42.24</ipaddress></node>');
   v.check(testxml, function(err, cleaned) {
     assert.ifError(err);
     obj = cleaned;
@@ -2833,7 +2871,7 @@ exports['test_non_optional_and_optional_with_src_field_attribute'] = function(te
 
   node1 = {
     'is_active' : true,
-    'name' : 'exmample',
+    'name' : 'example',
     'agent_name' : 'your mom',
     'ipaddress' : '42.24.42.24'
   };
@@ -2841,7 +2879,7 @@ exports['test_non_optional_and_optional_with_src_field_attribute'] = function(te
   node2 = {
     'hash_id' : 'xkCD366',
     'is_active' : true,
-    'name' : 'exmample',
+    'name' : 'example',
     'agent_name' : 'your mom',
     'ipaddress' : '42.24.42.24'
   }
@@ -2850,7 +2888,7 @@ exports['test_non_optional_and_optional_with_src_field_attribute'] = function(te
     'id' : 'xkCD366',
     'label' : 'node3',
     'is_active' : true,
-    'name' : 'exmample',
+    'name' : 'example',
     'agent_name' : 'your mom',
     'ipaddress' : '42.24.42.24'
   }
